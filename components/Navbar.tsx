@@ -35,21 +35,21 @@ export function Navbar() {
           : "bg-transparent border-b border-transparent"
       }`}
     >
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+      <div className="mx-auto flex max-w-6xl min-w-0 flex-wrap items-center justify-between gap-2 px-3 py-2.5 sm:px-4 sm:py-3">
         <Logo size="default" linkTo={user ? "/dashboard" : "/"} />
 
-        <nav className="flex items-center gap-2">
+        <nav className="flex min-w-0 flex-shrink-0 flex-wrap items-center justify-end gap-1.5 sm:gap-2">
           {user ? (
             <>
               <Link
                 href="/dashboard"
-                className="rounded-lg px-3 py-1.5 text-sm text-zinc-400 hover:text-white hover:bg-white/[0.06] transition-all"
+                className="rounded-lg px-2.5 py-1.5 text-xs sm:text-sm text-zinc-400 hover:text-white hover:bg-white/[0.06] transition-all"
               >
                 Dashboard
               </Link>
               <Link
                 href="/applications/new"
-                className="rounded-lg bg-indigo-500/10 border border-indigo-500/20 px-3 py-1.5 text-sm font-medium text-indigo-400 hover:bg-indigo-500/20 transition-all"
+                className="rounded-lg bg-indigo-500/10 border border-indigo-500/20 px-2.5 py-1.5 text-xs sm:text-sm font-medium text-indigo-400 hover:bg-indigo-500/20 transition-all"
               >
                 + New
               </Link>
@@ -67,13 +67,13 @@ export function Navbar() {
                     {(user.name || user.email || "?")[0].toUpperCase()}
                   </div>
                 )}
-                <span className="text-sm text-zinc-500 hidden sm:block max-w-[120px] truncate">
+                <span className="hidden max-w-[120px] truncate text-xs text-zinc-500 sm:block sm:text-sm">
                   {user.name || user.email}
                 </span>
               </div>
               <button
                 onClick={handleLogout}
-                className="rounded-lg border border-white/[0.06] px-3 py-1.5 text-xs font-medium text-zinc-400 hover:text-white hover:bg-white/[0.06] transition-all"
+                className="rounded-lg border border-white/[0.06] px-2.5 py-1.5 text-xs font-medium text-zinc-400 hover:text-white hover:bg-white/[0.06] transition-all"
               >
                 Log out
               </button>
@@ -88,7 +88,7 @@ export function Navbar() {
               </Link>
               <Link
                 href="/signup"
-                className="rounded-lg bg-gradient-accent px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30 hover:-translate-y-0.5 transition-all"
+                className="rounded-lg bg-gradient-accent px-3 py-2 text-xs sm:text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30 transition-all"
               >
                 Sign up
               </Link>

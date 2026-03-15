@@ -42,10 +42,10 @@ const FEATURES = [
 
 export default function LandingPage() {
   return (
-    <main className="min-h-screen overflow-hidden bg-base">
+    <main className="min-h-screen min-w-0 overflow-x-hidden bg-base">
       {/* Nav */}
       <header className="sticky top-0 z-50 bg-base/70 backdrop-blur-xl border-b border-white/[0.04]">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+        <div className="mx-auto flex max-w-6xl min-w-0 items-center justify-between px-3 py-2.5 sm:px-4 sm:py-3">
           <Logo size="default" />
           <div className="flex items-center gap-3">
             <Link
@@ -75,14 +75,14 @@ export default function LandingPage() {
         <div className="relative flex flex-col items-center justify-center px-4 pt-24 pb-20 sm:pt-32 sm:pb-28">
           <div className="max-w-3xl text-center space-y-8">
             {/* Heading */}
-            <h1 className="text-5xl font-extrabold tracking-tight sm:text-6xl lg:text-7xl animate-fade-up">
+            <h1 className="text-4xl font-extrabold tracking-tight sm:text-6xl lg:text-7xl animate-fade-up">
               <span className="text-white">Stop applying.</span>
               <br />
               <span className="text-gradient">Start landing.</span>
             </h1>
 
             {/* Subtitle */}
-            <p className="text-lg leading-8 text-zinc-400 max-w-xl mx-auto animate-fade-up delay-200">
+            <p className="text-base leading-7 text-zinc-400 max-w-xl mx-auto sm:text-lg sm:leading-8 animate-fade-up delay-200">
               Upload your resume and a job description. AI handles the rest
               — tailored resume, ATS score, cover letter, follow-ups, and
               interview prep.
@@ -106,18 +106,18 @@ export default function LandingPage() {
           </div>
 
           {/* Floating UI mockup hint */}
-          <div className="relative mt-20 w-full max-w-3xl animate-fade-up delay-500">
+          <div className="relative mt-12 w-full max-w-3xl animate-fade-up delay-500 sm:mt-20">
             <div className="absolute inset-0 bg-gradient-to-t from-base via-transparent to-transparent z-10 pointer-events-none" />
-            <div className="rounded-2xl border border-white/[0.06] bg-surface p-1 shadow-2xl shadow-black/40">
-              <div className="rounded-xl bg-elevated p-6">
+            <div className="rounded-xl border border-white/[0.06] bg-surface p-1 shadow-2xl shadow-black/40 sm:rounded-2xl">
+              <div className="rounded-lg bg-elevated p-4 sm:rounded-xl sm:p-6">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="h-3 w-3 rounded-full bg-red-500/60" />
                   <div className="h-3 w-3 rounded-full bg-yellow-500/60" />
                   <div className="h-3 w-3 rounded-full bg-green-500/60" />
                   <div className="ml-4 h-5 flex-1 rounded bg-white/[0.04]" />
                 </div>
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="col-span-2 space-y-3">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                  <div className="space-y-3 sm:col-span-2">
                     <div className="h-4 w-3/4 rounded bg-white/[0.06]" />
                     <div className="h-3 w-full rounded bg-white/[0.04]" />
                     <div className="h-3 w-5/6 rounded bg-white/[0.04]" />
@@ -157,7 +157,7 @@ export default function LandingPage() {
 
       {/* Features */}
       <section id="features" className="relative border-t border-white/[0.04]">
-        <div className="mx-auto max-w-6xl px-4 py-24">
+        <div className="mx-auto max-w-6xl px-4 py-16 sm:py-24">
           <div className="text-center max-w-2xl mx-auto mb-16">
             <h2 className="text-3xl font-bold text-white sm:text-4xl">
               One tool for your entire
@@ -204,7 +204,7 @@ export default function LandingPage() {
 
       {/* How It Works */}
       <section className="border-t border-white/[0.04]">
-        <div className="mx-auto max-w-4xl px-4 py-24">
+        <div className="mx-auto max-w-4xl px-4 py-16 sm:py-24">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-white sm:text-4xl">
               Three steps. That&apos;s it.
@@ -250,7 +250,7 @@ export default function LandingPage() {
       {/* CTA */}
       <section className="relative border-t border-white/[0.04]">
         <div className="absolute inset-0 bg-gradient-mesh opacity-50" />
-        <div className="relative mx-auto max-w-2xl text-center px-4 py-24">
+        <div className="relative mx-auto max-w-2xl text-center px-4 py-16 sm:py-24">
           <LogoIcon className="h-12 w-12 mx-auto mb-6" />
           <h2 className="text-3xl font-bold text-white sm:text-4xl">
             Your next job is one
@@ -270,8 +270,8 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-white/[0.04] py-10">
-        <div className="mx-auto max-w-6xl px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <footer className="border-t border-white/[0.04] py-8 sm:py-10">
+        <div className="mx-auto max-w-6xl min-w-0 px-4 flex flex-col items-center justify-between gap-4 sm:flex-row">
           <Logo size="small" />
           <p className="text-sm text-zinc-600">
             &copy; {new Date().getFullYear()} ApplyAI

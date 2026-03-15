@@ -15,6 +15,12 @@ export const metadata: Metadata = {
     "Upload your resume, paste a job description, and get an optimized resume, ATS score, cover letter, and follow-up emails — all powered by AI.",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+};
+
 export default function RootLayout({
   children,
 }: {
@@ -22,7 +28,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={inter.variable}>
-      <body className={inter.className}>
+      <body className={`${inter.className} min-w-0 overflow-x-hidden`}>
         {children}
         <Script
           src="https://accounts.google.com/gsi/client"

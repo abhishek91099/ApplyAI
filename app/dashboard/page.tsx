@@ -60,16 +60,16 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-base">
       <Navbar />
 
-      <div className="mx-auto max-w-6xl px-4 py-8 space-y-8">
+      <div className="mx-auto max-w-6xl min-w-0 px-3 py-6 space-y-6 sm:px-4 sm:py-8 sm:space-y-8">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-white">Dashboard</h1>
-            <p className="text-sm text-zinc-500 mt-1">Track and manage your applications</p>
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="min-w-0">
+            <h1 className="text-xl font-bold text-white sm:text-2xl">Dashboard</h1>
+            <p className="text-xs text-zinc-500 mt-1 sm:text-sm">Track and manage your applications</p>
           </div>
           <Link
             href="/applications/new"
-            className="inline-flex items-center gap-2 rounded-xl bg-gradient-accent px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30 hover:-translate-y-0.5 transition-all"
+            className="inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-xl bg-gradient-accent px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30 transition-all sm:w-auto"
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
               <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
@@ -132,8 +132,8 @@ export default function DashboardPage() {
             </Link>
           </div>
         ) : (
-          <div className="rounded-2xl border border-white/[0.06] bg-surface overflow-hidden">
-            <table className="w-full text-sm">
+          <div className="overflow-x-auto rounded-2xl border border-white/[0.06] bg-surface -mx-3 sm:mx-0">
+            <table className="w-full min-w-[500px] text-sm">
               <thead>
                 <tr className="border-b border-white/[0.04]">
                   <th className="text-left px-5 py-3.5 font-medium text-zinc-500 text-xs uppercase tracking-wider">Job</th>

@@ -13,6 +13,7 @@ import { ResumeEditor } from "@/components/ResumeEditor";
 import { InterviewPrepView } from "@/components/InterviewPrepView";
 import { CoverLetterPdfButton } from "@/components/CoverLetterPdfButton";
 import { getApplication, updateApplication, deleteApplication, getInterviewPrep } from "@/lib/api";
+import { normalizePrepError } from "@/lib/utils";
 import type { Application } from "@/lib/types";
 
 const STATUSES = ["Applied", "Interview", "Rejected", "Offer"] as const;
@@ -32,6 +33,7 @@ export default function ApplicationDetailPage() {
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [generatingPrep, setGeneratingPrep] = useState(false);
+  const [prepError, setPrepError] = useState("");
   const [activeTab, setActiveTab] = useState<"resume" | "cover" | "followup" | "prep">("resume");
 
   useEffect(() => { getApplication(id).then(setApp).catch((e) => setError(e.message)).finally(() => setLoading(false)); }, [id]);
@@ -58,20 +60,34 @@ export default function ApplicationDetailPage() {
   const resumeMeta = app.resume_meta;
   const coverMeta = app.cover_letter_meta;
 
+  const runPrep = async () => {
+    setPrepError("");
+    setGeneratingPrep(true);
+    try {
+      const prep = await getInterviewPrep(app.job_title, app.company, app.job_description, app.experience_years || 0);
+      await updateApplication(app.id, { interview_prep: prep });
+      setApp({ ...app, interview_prep: prep });
+    } catch (err: unknown) {
+      setPrepError(normalizePrepError(err));
+    } finally {
+      setGeneratingPrep(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-base">
       <Navbar />
-      <div className="mx-auto max-w-4xl px-4 py-8 space-y-6">
+      <div className="mx-auto max-w-4xl min-w-0 px-3 py-6 space-y-6 sm:px-4 sm:py-8">
         <Link href="/dashboard" className="inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-300 transition-colors group">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 group-hover:-translate-x-0.5 transition-transform"><path fillRule="evenodd" d="M17 10a.75.75 0 01-.75.75H5.612l4.158 3.96a.75.75 0 11-1.04 1.08l-5.5-5.25a.75.75 0 010-1.08l5.5-5.25a.75.75 0 111.04 1.08L5.612 9.25H16.25A.75.75 0 0117 10z" clipRule="evenodd" /></svg>
           Dashboard
         </Link>
 
         {/* Header */}
-        <div className="rounded-2xl border border-white/[0.06] bg-surface p-6 sm:p-8">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <h1 className="text-xl font-bold text-white">{app.job_title}</h1>
+        <div className="rounded-2xl border border-white/[0.06] bg-surface p-4 sm:p-6 sm:p-8">
+          <div className="flex flex-wrap items-start justify-between gap-3 sm:gap-4">
+            <div className="min-w-0 flex-1">
+              <h1 className="truncate text-lg font-bold text-white sm:text-xl">{app.job_title}</h1>
               <p className="text-sm text-zinc-400 mt-0.5">{app.company}</p>
               <p className="text-xs text-zinc-600 mt-2 flex flex-wrap items-center gap-x-2 gap-y-1">
                 <span>Applied {new Date(app.created_at).toLocaleDateString()}</span>
@@ -80,7 +96,7 @@ export default function ApplicationDetailPage() {
                 {app.is_career_change && <><span className="text-zinc-700">&middot;</span><span className="text-amber-400">Career change</span></>}
               </p>
             </div>
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex min-w-0 flex-wrap items-center justify-end gap-2 sm:justify-start">
               {app.ats_score != null && <ATSScore score={app.ats_score} />}
               <ExportButton application={app} />
               <div className="flex items-center gap-2">
@@ -113,8 +129,8 @@ export default function ApplicationDetailPage() {
         </div>
 
         {/* Tabs */}
-        <div className="border-b border-white/[0.06]">
-          <nav className="flex gap-1">
+        <div className="border-b border-white/[0.06] -mx-3 sm:mx-0">
+          <nav className="flex flex-nowrap gap-1 overflow-x-auto px-3 sm:px-0 scrollbar-thin">
             {TAB_CONFIG.map(({ key, label, icon }) => {
               const has = key === "resume" ? !!app.tailored_resume : key === "cover" ? !!app.cover_letter : key === "followup" ? followUpEmails.length > 0 : !!app.interview_prep;
               return (
@@ -173,7 +189,15 @@ export default function ApplicationDetailPage() {
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke="currentColor" className="h-7 w-7 text-amber-400"><path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.438 60.438 0 00-.491 6.347A48.62 48.62 0 0112 20.904a48.62 48.62 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.636 50.636 0 00-2.658-.813A59.906 59.906 0 0112 3.493a59.903 59.903 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0112 13.489a50.702 50.702 0 017.74-3.342" /></svg>
               </div>
               <div><p className="text-sm text-white font-medium">No interview prep yet</p><p className="text-xs text-zinc-500 mt-1">Generate AI-powered preparation for this role</p></div>
-              <button onClick={async () => { setGeneratingPrep(true); setError(""); try { const prep = await getInterviewPrep(app.job_title, app.company, app.job_description, app.experience_years || 0); await updateApplication(app.id, { interview_prep: prep }); setApp({ ...app, interview_prep: prep }); } catch (err: unknown) { setError(err instanceof Error ? err.message : "Failed"); } finally { setGeneratingPrep(false); } }} disabled={generatingPrep} className="inline-flex items-center gap-2 rounded-xl bg-gradient-warm px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-amber-500/20 disabled:opacity-50 transition-all">
+              {prepError && (
+                <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-400 flex flex-col items-center gap-2 sm:flex-row sm:justify-center">
+                  <span>{prepError}</span>
+                  <button onClick={() => { setPrepError(""); runPrep(); }} disabled={generatingPrep} className="shrink-0 inline-flex items-center gap-1.5 rounded-lg border border-red-500/30 bg-red-500/20 px-3 py-1.5 text-xs font-medium text-red-300 hover:bg-red-500/30 disabled:opacity-50 transition-all">
+                    Try again
+                  </button>
+                </div>
+              )}
+              <button onClick={runPrep} disabled={generatingPrep} className="inline-flex items-center gap-2 rounded-xl bg-gradient-warm px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-amber-500/20 disabled:opacity-50 transition-all">
                 {generatingPrep && <Spinner className="h-4 w-4" />}
                 {generatingPrep ? "Generating..." : "Generate Interview Prep"}
               </button>

@@ -13,6 +13,7 @@ import {
   tailorResume, scoreResume, generateCoverLetter, generateFollowUps,
   getInterviewPrep, saveApplication, extractPdf, extractUrl, extractCandidateInfo,
 } from "@/lib/api";
+import { normalizePrepError } from "@/lib/utils";
 import type { TailorResult, ScoreResult, CoverLetterResult, FollowUpEmail, InterviewPrep } from "@/lib/types";
 
 const INPUT_CLASS =
@@ -56,6 +57,7 @@ export default function NewApplicationPage() {
   const [extractingInfo, setExtractingInfo] = useState(false);
   const [infoAutoFilled, setInfoAutoFilled] = useState(false);
   const [error, setError] = useState("");
+  const [prepError, setPrepError] = useState("");
   const [activeTab, setActiveTab] = useState<"resume" | "cover" | "followup" | "prep">("resume");
   const [preparingInterview, setPreparingInterview] = useState(false);
   const extractTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -109,6 +111,20 @@ export default function NewApplicationPage() {
     finally { setGenerating(false); }
   };
 
+  const runInterviewPrep = async () => {
+    setPrepError("");
+    setPreparingInterview(true);
+    try {
+      const prep = await getInterviewPrep(jobTitle, company, jobDescription, experienceYears);
+      setInterviewPrep(prep);
+      setActiveTab("prep");
+    } catch (err: unknown) {
+      setPrepError(normalizePrepError(err));
+    } finally {
+      setPreparingInterview(false);
+    }
+  };
+
   const handleSave = async () => {
     setSaving(true); setError("");
     try {
@@ -133,9 +149,9 @@ export default function NewApplicationPage() {
   return (
     <div className="min-h-screen bg-base">
       <Navbar />
-      <div className="mx-auto max-w-4xl px-4 py-8 space-y-8">
+      <div className="mx-auto max-w-4xl min-w-0 px-3 py-6 space-y-6 sm:px-4 sm:py-8 sm:space-y-8">
         <div>
-          <h1 className="text-2xl font-bold text-white">New Application</h1>
+          <h1 className="text-xl font-bold text-white sm:text-2xl">New Application</h1>
           <p className="mt-1 text-sm text-zinc-500">Fill in the details and generate AI-optimized content</p>
         </div>
 
@@ -227,11 +243,19 @@ export default function NewApplicationPage() {
               {generating && <Spinner className="h-4 w-4" />}
               {generating ? "Generating..." : "Analyze & Generate"}
             </button>
-            <button onClick={async () => { setPreparingInterview(true); setError(""); try { const prep = await getInterviewPrep(jobTitle, company, jobDescription, experienceYears); setInterviewPrep(prep); setActiveTab("prep"); } catch (err: unknown) { setError(err instanceof Error ? err.message : "Interview prep failed"); } finally { setPreparingInterview(false); } }} disabled={!canGenerate || preparingInterview} className="inline-flex items-center gap-2 rounded-xl bg-gradient-warm px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-amber-500/20 disabled:opacity-50 disabled:shadow-none transition-all">
+            <button onClick={runInterviewPrep} disabled={!canGenerate || preparingInterview} className="inline-flex items-center gap-2 rounded-xl bg-gradient-warm px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-amber-500/20 disabled:opacity-50 disabled:shadow-none transition-all">
               {preparingInterview && <Spinner className="h-4 w-4" />}
               {preparingInterview ? "Preparing..." : "Deep Prep for Interview"}
             </button>
           </div>
+          {prepError && (
+            <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-400 flex flex-wrap items-center justify-center gap-2 mt-2">
+              <span>{prepError}</span>
+              <button onClick={() => { setPrepError(""); runInterviewPrep(); }} disabled={preparingInterview} className="shrink-0 inline-flex items-center gap-1.5 rounded-lg border border-red-500/30 bg-red-500/20 px-3 py-1.5 text-xs font-medium text-red-300 hover:bg-red-500/30 disabled:opacity-50 transition-all">
+                Try again
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Error */}
@@ -287,8 +311,8 @@ export default function NewApplicationPage() {
             )}
 
             {/* Tabs */}
-            <div className="border-b border-white/[0.06]">
-              <nav className="flex gap-1">
+            <div className="border-b border-white/[0.06] -mx-3 sm:mx-0">
+              <nav className="flex flex-nowrap gap-1 overflow-x-auto px-3 sm:px-0">
                 {TAB_CONFIG.map(({ key, label, icon }) => {
                   const has = key === "resume" ? !!tailorResult : key === "cover" ? !!coverLetterResult : key === "followup" ? followUpEmails.length > 0 : !!interviewPrep;
                   return (
