@@ -107,6 +107,11 @@ def _migrate_users_table():
                 conn.execute(text(ddl))
 
 
+@app.get("/")
+def root():
+    return {"status": "ok", "message": "ApplyAI API"}
+
+
 @app.get("/health")
 def health():
     return {"status": "ok"}
