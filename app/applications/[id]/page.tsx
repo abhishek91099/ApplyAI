@@ -133,8 +133,8 @@ export default function ApplicationDetailPage() {
           {activeTab === "resume" && app.tailored_resume && (
             <div className="space-y-4">
               <ResumeEditor applicationId={app.id} initialText={app.tailored_resume} originalResume={app.original_resume} jobTitle={app.job_title} company={app.company} onSave={(text) => setApp({ ...app, tailored_resume: text })} />
-              {resumeMeta?.changes_made?.length > 0 && <div className="border-t border-white/[0.04] pt-4"><p className="text-xs font-semibold text-zinc-500 mb-2">Changes:</p><ul className="space-y-1">{resumeMeta.changes_made.map((c: string, i: number) => <li key={i} className="text-xs text-zinc-400 flex gap-2"><span className="text-indigo-400 shrink-0">-</span> {c}</li>)}</ul></div>}
-              {resumeMeta?.keywords_added?.length > 0 && <div><p className="text-xs font-semibold text-zinc-500 mb-2">Keywords added:</p><div className="flex flex-wrap gap-1.5">{resumeMeta.keywords_added.map((k: string) => <span key={k} className="rounded-full bg-indigo-500/10 border border-indigo-500/20 px-2.5 py-0.5 text-xs font-medium text-indigo-400">{k}</span>)}</div></div>}
+              {(resumeMeta?.changes_made?.length ?? 0) > 0 && <div className="border-t border-white/[0.04] pt-4"><p className="text-xs font-semibold text-zinc-500 mb-2">Changes:</p><ul className="space-y-1">{resumeMeta!.changes_made.map((c: string, i: number) => <li key={i} className="text-xs text-zinc-400 flex gap-2"><span className="text-indigo-400 shrink-0">-</span> {c}</li>)}</ul></div>}
+              {(resumeMeta?.keywords_added?.length ?? 0) > 0 && <div><p className="text-xs font-semibold text-zinc-500 mb-2">Keywords added:</p><div className="flex flex-wrap gap-1.5">{resumeMeta!.keywords_added.map((k: string) => <span key={k} className="rounded-full bg-indigo-500/10 border border-indigo-500/20 px-2.5 py-0.5 text-xs font-medium text-indigo-400">{k}</span>)}</div></div>}
             </div>
           )}
 
@@ -145,7 +145,7 @@ export default function ApplicationDetailPage() {
                 <CopyButton text={app.cover_letter} />
               </div>
               <p className="text-sm leading-relaxed text-zinc-300 whitespace-pre-wrap">{app.cover_letter}</p>
-              {coverMeta?.key_selling_points_used?.length > 0 && <div className="border-t border-white/[0.04] pt-4"><p className="text-xs font-semibold text-zinc-500 mb-2">Key selling points:</p><div className="flex flex-wrap gap-1.5">{coverMeta.key_selling_points_used.map((p: string, i: number) => <span key={i} className="rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 text-xs font-medium text-emerald-400">{p}</span>)}</div></div>}
+              {(coverMeta?.key_selling_points_used?.length ?? 0) > 0 && <div className="border-t border-white/[0.04] pt-4"><p className="text-xs font-semibold text-zinc-500 mb-2">Key selling points:</p><div className="flex flex-wrap gap-1.5">{coverMeta!.key_selling_points_used.map((p: string, i: number) => <span key={i} className="rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 text-xs font-medium text-emerald-400">{p}</span>)}</div></div>}
               <CoverLetterPdfButton text={app.cover_letter} jobTitle={app.job_title} company={app.company} candidateName={app.candidate_name || undefined} />
             </div>
           )}
