@@ -15,7 +15,8 @@ logger = logging.getLogger("applyai.auth")
 router = APIRouter()
 
 SECRET_KEY = os.environ.get("JWT_SECRET", "change-me-in-production")
-GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
+_google_client_ids = os.environ.get("GOOGLE_CLIENT_ID", "")
+GOOGLE_CLIENT_IDS = [x.strip() for x in _google_client_ids.split(",") if x.strip()]
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_DAYS = 7
 
@@ -102,14 +103,22 @@ def login(body: AuthRequest):
 @router.post("/auth/google")
 def google_login(body: GoogleAuthRequest):
     logger.info("google-login | verifying token")
-    try:
-        idinfo = id_token.verify_oauth2_token(
-            body.credential,
-            google_requests.Request(),
-            GOOGLE_CLIENT_ID,
-        )
-    except ValueError:
-        logger.warning("google-login | invalid token")
+    if not GOOGLE_CLIENT_IDS:
+        logger.warning("google-login | GOOGLE_CLIENT_ID not set")
+        raise HTTPException(status_code=503, detail="Google sign-in not configured")
+    idinfo = None
+    for client_id in GOOGLE_CLIENT_IDS:
+        try:
+            idinfo = id_token.verify_oauth2_token(
+                body.credential,
+                google_requests.Request(),
+                client_id,
+            )
+            break
+        except ValueError:
+            continue
+    if idinfo is None:
+        logger.warning("google-login | invalid token (no matching client ID)")
         raise HTTPException(status_code=401, detail="Invalid Google token")
 
     email = idinfo.get("email")

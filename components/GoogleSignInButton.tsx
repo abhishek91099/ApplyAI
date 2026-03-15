@@ -36,7 +36,15 @@ export function GoogleSignInButton() {
         setAuth(data.token, data.user);
         router.push("/dashboard");
       } catch (err: unknown) {
-        setError(err instanceof Error ? err.message : "Google sign-in failed");
+        console.error("Google sign-in error:", err);
+        const msg = err instanceof Error ? err.message : "Google sign-in failed";
+        if (msg.includes("Failed to fetch") || msg.includes("NetworkError")) {
+          setError("Cannot reach server. Check that backend FRONTEND_URL and NEXT_PUBLIC_API_URL are set and match your site.");
+        } else if (msg.includes("Invalid Google token")) {
+          setError("Invalid Google token. Use a Web application client ID and add this site to Authorized JavaScript origins in Google Cloud.");
+        } else {
+          setError(msg);
+        }
         setLoading(false);
       }
     },
