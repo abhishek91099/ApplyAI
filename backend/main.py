@@ -11,6 +11,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.middleware.gzip import GZipMiddleware
 from database import create_tables
 from routers import ai, applications, auth
+from rate_limit import RateLimitMiddleware
 
 _formatter = logging.Formatter(
     "%(asctime)s | %(levelname)-7s | %(name)s | %(message)s",
@@ -54,6 +55,7 @@ class RequestLogMiddleware(BaseHTTPMiddleware):
 
 
 app.add_middleware(RequestLogMiddleware)
+app.add_middleware(RateLimitMiddleware)
 app.add_middleware(GZipMiddleware, minimum_size=500)
 app.add_middleware(
     CORSMiddleware,

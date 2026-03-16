@@ -22,8 +22,22 @@ connect_args = {}
 if "neon.tech" in DATABASE_URL or "sslmode" in DATABASE_URL:
     connect_args["sslmode"] = "require"
 
-engine = create_engine(DATABASE_URL, connect_args=connect_args, pool_pre_ping=True)
-SessionLocal = sessionmaker(bind=engine)
+# Concurrency: pool sized for 20+ concurrent requests; recycle to avoid stale connections
+_pool_size = int(os.environ.get("DB_POOL_SIZE", "20"))
+_max_overflow = int(os.environ.get("DB_POOL_MAX_OVERFLOW", "10"))
+_pool_recycle = int(os.environ.get("DB_POOL_RECYCLE", "1800"))  # 30 min
+_pool_timeout = int(os.environ.get("DB_POOL_TIMEOUT", "30"))  # seconds to wait for connection
+
+engine = create_engine(
+    DATABASE_URL,
+    connect_args=connect_args,
+    pool_pre_ping=True,
+    pool_size=_pool_size,
+    max_overflow=_max_overflow,
+    pool_recycle=_pool_recycle,
+    pool_timeout=_pool_timeout,
+)
+SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
 Base = declarative_base()
 
 

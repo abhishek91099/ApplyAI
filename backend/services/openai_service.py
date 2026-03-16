@@ -3,6 +3,7 @@ import json
 import time
 import logging
 from openai import OpenAI
+from openai import RateLimitError as OpenAIRateLimitError
 
 logger = logging.getLogger("applyai.openai")
 
@@ -10,21 +11,42 @@ client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
 MODEL = "gpt-4o-mini"
 
+# Concurrency: retry on 429 with exponential backoff so bursts don't fail all requests
+OPENAI_MAX_RETRIES = int(os.environ.get("OPENAI_MAX_RETRIES", "3"))
+OPENAI_BASE_BACKOFF_SEC = float(os.environ.get("OPENAI_BASE_BACKOFF_SEC", "2.0"))
+
 
 def _generate_json(system: str, user_prompt: str) -> dict:
     start = time.time()
     prompt_chars = len(system) + len(user_prompt)
     logger.info(f"OpenAI call | model={MODEL} | prompt_chars={prompt_chars}")
 
-    response = client.chat.completions.create(
-        model=MODEL,
-        temperature=0.7,
-        response_format={"type": "json_object"},
-        messages=[
-            {"role": "system", "content": system},
-            {"role": "user", "content": user_prompt},
-        ],
-    )
+    messages = [
+        {"role": "system", "content": system},
+        {"role": "user", "content": user_prompt},
+    ]
+    last_error = None
+    for attempt in range(OPENAI_MAX_RETRIES + 1):
+        try:
+            response = client.chat.completions.create(
+                model=MODEL,
+                temperature=0.7,
+                response_format={"type": "json_object"},
+                messages=messages,
+            )
+            break
+        except OpenAIRateLimitError as e:
+            last_error = e
+            if attempt == OPENAI_MAX_RETRIES:
+                logger.error(f"OpenAI rate limit | max retries={OPENAI_MAX_RETRIES} exceeded")
+                raise
+            wait_sec = OPENAI_BASE_BACKOFF_SEC * (2**attempt)
+            logger.warning(f"OpenAI rate limit | attempt={attempt + 1} | retry in {wait_sec}s")
+            time.sleep(wait_sec)
+    else:
+        if last_error:
+            raise last_error
+        raise RuntimeError("OpenAI request failed after retries")
 
     duration_ms = round((time.time() - start) * 1000)
     usage = response.usage
