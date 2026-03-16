@@ -41,6 +41,18 @@ class UpdateApplicationRequest(BaseModel):
     follow_up_emails: list[dict] | None = None
 
 
+def _to_summary_dict(app: Application) -> dict:
+    """Lightweight payload for list view — avoids sending resumes, cover letters, interview_prep."""
+    return {
+        "id": str(app.id),
+        "job_title": app.job_title,
+        "company": app.company,
+        "status": app.status,
+        "ats_score": app.ats_score,
+        "created_at": app.created_at.isoformat() if app.created_at else None,
+    }
+
+
 def _to_dict(app: Application) -> dict:
     return {
         "id": str(app.id),
@@ -121,7 +133,7 @@ async def list_applications(
         .all()
     )
     logger.info(f"list | user={user_id} | count={len(apps)}")
-    return [_to_dict(a) for a in apps]
+    return [_to_summary_dict(a) for a in apps]
 
 
 @router.get("/applications/{app_id}")

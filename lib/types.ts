@@ -1,3 +1,13 @@
+/** Lightweight shape returned by GET /api/applications (list) — keeps list fetch fast. */
+export interface ApplicationSummary {
+  id: string;
+  job_title: string;
+  company: string;
+  status: "Applied" | "Interview" | "Rejected" | "Offer";
+  ats_score: number | null;
+  created_at: string;
+}
+
 export interface Application {
   id: string;
   user_id: string;

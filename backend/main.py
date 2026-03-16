@@ -8,6 +8,7 @@ load_dotenv()
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.middleware.gzip import GZipMiddleware
 from database import create_tables
 from routers import ai, applications, auth
 
@@ -53,6 +54,7 @@ class RequestLogMiddleware(BaseHTTPMiddleware):
 
 
 app.add_middleware(RequestLogMiddleware)
+app.add_middleware(GZipMiddleware, minimum_size=500)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,

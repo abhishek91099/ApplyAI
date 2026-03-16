@@ -6,6 +6,7 @@ import type {
   FollowUpResult,
   InterviewPrep,
   Application,
+  ApplicationSummary,
 } from "./types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -166,17 +167,32 @@ export async function getInterviewPrep(
 
 // ── Applications ────────────────────────────────────
 
+const APPLICATIONS_CACHE_TTL_MS = 60_000; // 1 minute
+let applicationsListCache: { data: ApplicationSummary[]; ts: number } | null = null;
+
+export function invalidateApplicationsCache(): void {
+  applicationsListCache = null;
+}
+
+export async function getApplications(): Promise<ApplicationSummary[]> {
+  const now = Date.now();
+  if (applicationsListCache && now - applicationsListCache.ts < APPLICATIONS_CACHE_TTL_MS) {
+    return applicationsListCache.data;
+  }
+  const data = await request<ApplicationSummary[]>("/api/applications");
+  applicationsListCache = { data, ts: now };
+  return data;
+}
+
 export async function saveApplication(
   data: Record<string, unknown>
 ): Promise<Application> {
-  return request("/api/save-application", {
+  const app = await request<Application>("/api/save-application", {
     method: "POST",
     body: JSON.stringify(data),
   });
-}
-
-export async function getApplications(): Promise<Application[]> {
-  return request("/api/applications");
+  invalidateApplicationsCache();
+  return app;
 }
 
 export async function getApplication(id: string): Promise<Application> {
@@ -193,14 +209,17 @@ export async function updateApplication(
     follow_up_emails?: Array<{ type: string; subject: string; body: string; when_to_send?: string }>;
   }
 ): Promise<Application> {
-  return request(`/api/applications/${id}`, {
+  const app = await request<Application>(`/api/applications/${id}`, {
     method: "PATCH",
     body: JSON.stringify(data),
   });
+  invalidateApplicationsCache();
+  return app;
 }
 
 export async function deleteApplication(id: string): Promise<void> {
   await request(`/api/applications/${id}`, { method: "DELETE" });
+  invalidateApplicationsCache();
 }
 
 // ── Extraction ──────────────────────────────────────
