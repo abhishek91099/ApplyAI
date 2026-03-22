@@ -8,12 +8,54 @@ import { Spinner } from "@/components/Spinner";
 import { getApplications, deleteApplication } from "@/lib/api";
 import type { ApplicationSummary } from "@/lib/types";
 
-const STAT_CONFIG = [
-  { key: "total" as const, label: "Total", icon: "M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z", color: "text-zinc-400" },
-  { key: "applied" as const, label: "Applied", icon: "M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5", color: "text-blue-400" },
-  { key: "interview" as const, label: "Interview", icon: "M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 01-.825-.242m9.345-8.334a2.126 2.126 0 00-.476-.095 48.64 48.64 0 00-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0011.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155", color: "text-violet-400" },
-  { key: "offer" as const, label: "Offers", icon: "M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z", color: "text-emerald-400" },
-];
+function HubCard({
+  href,
+  step,
+  title,
+  description,
+  cta,
+  delayClass,
+  orbSide,
+}: {
+  href: string;
+  step: string;
+  title: string;
+  description: string;
+  cta: string;
+  delayClass: string;
+  orbSide: "right" | "left";
+}) {
+  return (
+    <Link
+      href={href}
+      className={`animate-rise-in ${delayClass} group relative flex min-h-[260px] flex-col overflow-hidden rounded-3xl border border-white/[0.1] bg-[#1d1d1f] p-8 shadow-apple-hero transition-all duration-300 hover:-translate-y-0.5 hover:border-white/[0.16] hover:shadow-glow-brand md:min-h-[280px]`}
+    >
+      <div
+        className={`pointer-events-none absolute h-48 w-48 rounded-full bg-[#2997ff]/20 blur-[64px] animate-apple-glow ${
+          orbSide === "right" ? "-right-10 -top-10" : "-bottom-12 -left-8"
+        }`}
+        aria-hidden
+      />
+      <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl border border-white/[0.08] bg-[#2997ff]/12 text-[13px] font-semibold text-[#2997ff] transition-transform duration-300 group-hover:scale-105">
+        {step}
+      </div>
+      <h2 className="relative mt-6 text-[24px] font-semibold leading-tight tracking-[-0.02em] text-[#f5f5f7] sm:text-[26px]">
+        {title}
+      </h2>
+      <p className="relative mt-3 max-w-sm flex-1 text-[15px] leading-relaxed text-[#a1a1a6] sm:text-[17px]">{description}</p>
+      <span className="relative mt-8 inline-flex items-center gap-2 text-[15px] font-medium text-[#2997ff] transition-transform duration-300 group-hover:gap-3">
+        {cta}
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
+          <path
+            fillRule="evenodd"
+            d="M3 10a.75.75 0 01.75-.75h10.638l-3.158-3.096a.75.75 0 011.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 11-1.04-1.08l3.157-3.096H3.75A.75.75 0 013 10z"
+            clipRule="evenodd"
+          />
+        </svg>
+      </span>
+    </Link>
+  );
+}
 
 export default function DashboardPage() {
   const [apps, setApps] = useState<ApplicationSummary[]>([]);
@@ -22,7 +64,7 @@ export default function DashboardPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const handleDelete = async (id: string, jobTitle: string) => {
-    if (!confirm(`Delete application for "${jobTitle}"? This cannot be undone.`)) return;
+    if (!confirm(`Delete "${jobTitle}"? This cannot be undone.`)) return;
     setDeletingId(id);
     try {
       await deleteApplication(id);
@@ -41,170 +83,198 @@ export default function DashboardPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const stats = {
-    total: apps.length,
-    applied: apps.filter((a) => a.status === "Applied").length,
-    interview: apps.filter((a) => a.status === "Interview").length,
-    offer: apps.filter((a) => a.status === "Offer").length,
-  };
-
-  const avgScore =
-    apps.filter((a) => a.ats_score).length > 0
-      ? Math.round(
-          apps.filter((a) => a.ats_score).reduce((s, a) => s + (a.ats_score || 0), 0) /
-            apps.filter((a) => a.ats_score).length
-        )
-      : null;
+  const greeting =
+    new Date().getHours() < 12 ? "Good morning" : new Date().getHours() < 18 ? "Good afternoon" : "Good evening";
 
   return (
-    <div className="min-h-screen bg-base">
+    <div className="min-h-screen bg-black text-[#f5f5f7]">
       <Navbar />
 
-      <div className="mx-auto max-w-6xl min-w-0 px-3 py-6 space-y-6 sm:px-4 sm:py-8 sm:space-y-8">
-        {/* Header */}
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="min-w-0">
-            <h1 className="text-xl font-bold text-white sm:text-2xl">Dashboard</h1>
-            <p className="text-xs text-zinc-500 mt-1 sm:text-sm">Track and manage your applications</p>
-          </div>
-          <Link
-            href="/applications/new"
-            className="inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-xl bg-gradient-accent px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30 transition-all sm:w-auto"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
-              <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
-            </svg>
-            New Application
-          </Link>
+      <div className="mx-auto max-w-[1024px] min-w-0 space-y-14 px-6 py-12 md:space-y-16 md:py-16">
+        <header className="space-y-4">
+          <p className="animate-rise-in text-[12px] font-medium uppercase tracking-[0.14em] text-[#86868b]">{greeting}</p>
+          <h1 className="animate-rise-in rise-delay-1 text-[32px] font-semibold leading-[1.1] tracking-[-0.02em] text-[#f5f5f7] md:text-[40px]">
+            Your workspace
+          </h1>
+          <p className="animate-rise-in rise-delay-2 max-w-xl text-[17px] leading-relaxed text-[#a1a1a6] md:text-[19px]">
+            Same look as the site you signed up on — refine materials, then prep for the interview.
+          </p>
+        </header>
+
+        <div className="grid gap-5 md:grid-cols-2 md:gap-6">
+          <HubCard
+            href="/resume"
+            step="01"
+            title="Résumé studio"
+            description="Tailor, ATS scoring, cover letter, and follow-up drafts aligned to the posting."
+            cta="Open studio"
+            delayClass="rise-delay-1"
+            orbSide="right"
+          />
+          <HubCard
+            href="/research"
+            step="02"
+            title="Intelligence"
+            description="Deep interview prep for the role in front of you — questions, angles, and narrative."
+            cta="Open intelligence"
+            delayClass="rise-delay-2"
+            orbSide="left"
+          />
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-5">
-          {STAT_CONFIG.map((s) => (
-            <div key={s.key} className="rounded-2xl border border-white/[0.06] bg-surface p-5 hover:border-white/[0.1] transition-all">
-              <div className="flex items-center gap-3 mb-3">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={`h-4 w-4 ${s.color}`}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d={s.icon} />
-                </svg>
-                <p className="text-xs font-medium text-zinc-500">{s.label}</p>
-              </div>
-              <p className={`text-2xl font-bold ${s.color}`}>{stats[s.key]}</p>
+        <section className="space-y-5">
+          <div className="animate-rise-in rise-delay-3">
+            <h2 className="text-[21px] font-semibold text-[#f5f5f7]">Archive</h2>
+            <p className="mt-1 text-[14px] text-[#a1a1a6]">Saved applications — open to edit or export.</p>
+          </div>
+
+          {loading ? (
+            <div className="flex justify-center py-20">
+              <Spinner className="h-9 w-9 text-[#2997ff]" />
             </div>
-          ))}
-          {avgScore !== null && (
-            <div className="rounded-2xl border border-white/[0.06] bg-surface p-5 hover:border-indigo-500/20 transition-all">
-              <div className="flex items-center gap-3 mb-3">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-4 w-4 text-indigo-400">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+          ) : error ? (
+            <div className="rounded-2xl border border-red-500/25 bg-red-500/10 p-4 text-sm text-red-300">{error}</div>
+          ) : apps.length === 0 ? (
+            <div className="apple-panel animate-rise-in rise-delay-3 flex flex-col items-center px-6 py-16 text-center sm:py-20">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/[0.1] bg-[#2d2d2f]">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="h-7 w-7 text-[#86868b]"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"
+                  />
                 </svg>
-                <p className="text-xs font-medium text-zinc-500">Avg ATS</p>
               </div>
-              <p className="text-2xl font-bold text-indigo-400">{avgScore}</p>
+              <p className="mt-6 text-[21px] font-semibold text-[#f5f5f7]">Nothing archived yet</p>
+              <p className="mt-2 max-w-sm text-[17px] leading-relaxed text-[#a1a1a6]">
+                Run a role through the studio — saves land here automatically.
+              </p>
+              <Link href="/resume" className="btn-primary mt-8 min-w-[200px] justify-center py-3.5">
+                Start in Résumé studio
+              </Link>
+            </div>
+          ) : (
+            <div className="apple-panel animate-rise-in rise-delay-3 overflow-hidden p-0">
+              <div className="border-b border-white/[0.08] px-5 py-4 sm:px-6">
+                <p className="text-[12px] font-medium uppercase tracking-[0.08em] text-[#86868b]">
+                  {apps.length} saved {apps.length === 1 ? "role" : "roles"}
+                </p>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[520px] text-sm">
+                  <thead>
+                    <tr className="border-b border-white/[0.06] text-left">
+                      <th className="px-5 py-3.5 text-xs font-medium uppercase tracking-wider text-[#86868b] sm:px-6">Role</th>
+                      <th className="hidden px-5 py-3.5 text-xs font-medium uppercase tracking-wider text-[#86868b] sm:table-cell sm:px-6">
+                        Company
+                      </th>
+                      <th className="px-5 py-3.5 text-center text-xs font-medium uppercase tracking-wider text-[#86868b] sm:px-6">
+                        ATS
+                      </th>
+                      <th className="px-5 py-3.5 text-center text-xs font-medium uppercase tracking-wider text-[#86868b] sm:px-6">
+                        Status
+                      </th>
+                      <th className="hidden px-5 py-3.5 text-right text-xs font-medium uppercase tracking-wider text-[#86868b] sm:table-cell sm:px-6">
+                        Added
+                      </th>
+                      <th className="px-5 py-3.5 sm:px-6" aria-label="Actions" />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {apps.map((app, i) => (
+                      <tr
+                        key={app.id}
+                        className="group border-b border-white/[0.05] transition-colors last:border-0 hover:bg-white/[0.03]"
+                        style={{ animationDelay: `${Math.min(i, 8) * 0.04}s` }}
+                      >
+                        <td className="px-5 py-4 sm:px-6">
+                          <span className="font-medium text-[#f5f5f7] transition-colors group-hover:text-white">
+                            {app.job_title}
+                          </span>
+                          <span className="mt-0.5 block text-xs text-[#86868b] sm:hidden">{app.company}</span>
+                        </td>
+                        <td className="hidden px-5 py-4 text-[#a1a1a6] sm:table-cell sm:px-6">{app.company}</td>
+                        <td className="px-5 py-4 text-center sm:px-6">
+                          {app.ats_score != null ? (
+                            <span
+                              className={`inline-flex h-8 min-w-[2rem] items-center justify-center rounded-lg px-2 text-xs font-bold tabular-nums ${
+                                app.ats_score >= 80
+                                  ? "border border-emerald-500/25 bg-emerald-500/10 text-emerald-400"
+                                  : app.ats_score >= 60
+                                    ? "border border-amber-500/25 bg-amber-500/10 text-amber-300"
+                                    : "border border-red-500/25 bg-red-500/10 text-red-300"
+                              }`}
+                            >
+                              {app.ats_score}
+                            </span>
+                          ) : (
+                            <span className="text-[#6e6e73]">—</span>
+                          )}
+                        </td>
+                        <td className="px-5 py-4 text-center sm:px-6">
+                          <StatusBadge status={app.status} />
+                        </td>
+                        <td className="hidden px-5 py-4 text-right text-xs tabular-nums text-[#86868b] sm:table-cell sm:px-6">
+                          {new Date(app.created_at).toLocaleDateString(undefined, {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })}
+                        </td>
+                        <td className="px-5 py-4 text-right sm:px-6">
+                          <div className="flex items-center justify-end gap-2">
+                            <Link
+                              href={`/applications/${app.id}`}
+                              className="rounded-full border border-[#2997ff]/35 bg-[#2997ff]/10 px-3 py-1.5 text-xs font-semibold text-[#2997ff] transition-colors hover:bg-[#2997ff]/18"
+                            >
+                              Open
+                            </Link>
+                            <Link
+                              href={`/research?applicationId=${encodeURIComponent(app.id)}`}
+                              className="hidden rounded-full border border-white/[0.1] px-2.5 py-1.5 text-[11px] font-medium text-[#a1a1a6] transition-colors hover:border-white/[0.18] hover:text-[#f5f5f7] sm:inline-flex"
+                              title="Intelligence"
+                            >
+                              Intel
+                            </Link>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDelete(app.id, app.job_title);
+                              }}
+                              disabled={deletingId === app.id}
+                              className="rounded-lg p-2 text-[#86868b] transition-colors hover:bg-red-500/10 hover:text-red-400 disabled:opacity-50"
+                              title="Delete"
+                            >
+                              {deletingId === app.id ? (
+                                <Spinner className="h-3.5 w-3.5" />
+                              ) : (
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.519.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z"
+                                    clipRule="evenodd"
+                                  />
+                                </svg>
+                              )}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
-        </div>
-
-        {/* Applications List */}
-        {loading ? (
-          <div className="flex justify-center py-20">
-            <Spinner className="h-8 w-8 text-indigo-400" />
-          </div>
-        ) : error ? (
-          <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400">
-            {error}
-          </div>
-        ) : apps.length === 0 ? (
-          <div className="text-center py-20 space-y-4">
-            <div className="mx-auto h-16 w-16 rounded-2xl border border-white/[0.06] bg-surface flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke="currentColor" className="h-8 w-8 text-zinc-600">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m3.75 9v6m3-3H9m1.5-12H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-              </svg>
-            </div>
-            <div>
-              <p className="text-white font-medium">No applications yet</p>
-              <p className="text-sm text-zinc-500 mt-1">Create your first application to get started</p>
-            </div>
-            <Link
-              href="/applications/new"
-              className="inline-flex items-center gap-2 rounded-xl bg-gradient-accent px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 transition-all"
-            >
-              Create your first application
-            </Link>
-          </div>
-        ) : (
-          <div className="overflow-x-auto rounded-2xl border border-white/[0.06] bg-surface -mx-3 sm:mx-0">
-            <table className="w-full min-w-[500px] text-sm">
-              <thead>
-                <tr className="border-b border-white/[0.04]">
-                  <th className="text-left px-5 py-3.5 font-medium text-zinc-500 text-xs uppercase tracking-wider">Job</th>
-                  <th className="text-left px-5 py-3.5 font-medium text-zinc-500 text-xs uppercase tracking-wider hidden sm:table-cell">Company</th>
-                  <th className="text-center px-5 py-3.5 font-medium text-zinc-500 text-xs uppercase tracking-wider">ATS</th>
-                  <th className="text-center px-5 py-3.5 font-medium text-zinc-500 text-xs uppercase tracking-wider">Status</th>
-                  <th className="text-right px-5 py-3.5 font-medium text-zinc-500 text-xs uppercase tracking-wider hidden sm:table-cell">Date</th>
-                  <th className="px-5 py-3.5"></th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/[0.04]">
-                {apps.map((app) => (
-                  <tr key={app.id} className="group hover:bg-white/[0.02] transition-colors">
-                    <td className="px-5 py-4">
-                      <span className="font-medium text-zinc-200 group-hover:text-white transition-colors">{app.job_title}</span>
-                      <span className="block sm:hidden text-xs text-zinc-600 mt-0.5">{app.company}</span>
-                    </td>
-                    <td className="px-5 py-4 text-zinc-400 hidden sm:table-cell">{app.company}</td>
-                    <td className="px-5 py-4 text-center">
-                      {app.ats_score != null ? (
-                        <span
-                          className={`inline-flex items-center justify-center h-8 w-8 rounded-lg text-xs font-bold ${
-                            app.ats_score >= 80
-                              ? "text-emerald-400 bg-emerald-500/10"
-                              : app.ats_score >= 60
-                                ? "text-amber-400 bg-amber-500/10"
-                                : "text-red-400 bg-red-500/10"
-                          }`}
-                        >
-                          {app.ats_score}
-                        </span>
-                      ) : (
-                        <span className="text-zinc-700">&mdash;</span>
-                      )}
-                    </td>
-                    <td className="px-5 py-4 text-center">
-                      <StatusBadge status={app.status} />
-                    </td>
-                    <td className="px-5 py-4 text-right text-zinc-600 text-xs hidden sm:table-cell">
-                      {new Date(app.created_at).toLocaleDateString()}
-                    </td>
-                    <td className="px-5 py-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <Link
-                          href={`/applications/${app.id}`}
-                          className="rounded-lg bg-indigo-500/10 border border-indigo-500/20 px-3 py-1.5 text-xs font-medium text-indigo-400 hover:bg-indigo-500/20 transition-all"
-                        >
-                          View
-                        </Link>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); handleDelete(app.id, app.job_title); }}
-                          disabled={deletingId === app.id}
-                          className="rounded-lg p-1.5 text-zinc-600 hover:text-red-400 hover:bg-red-500/10 disabled:opacity-50 transition-all"
-                          title="Delete"
-                        >
-                          {deletingId === app.id ? (
-                            <Spinner className="h-3.5 w-3.5" />
-                          ) : (
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
-                              <path fillRule="evenodd" d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.519.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z" clipRule="evenodd" />
-                            </svg>
-                          )}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+        </section>
       </div>
     </div>
   );

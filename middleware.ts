@@ -1,9 +1,14 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-export function middleware(request: NextRequest) {
-  const hasAuth = request.cookies.has("applyai_auth");
+function hasSessionCookie(request: NextRequest): boolean {
+  const v = request.cookies.get("applyai_auth")?.value;
+  return Boolean(v && v !== "0");
+}
 
-  const protectedPaths = ["/dashboard", "/applications"];
+export function middleware(request: NextRequest) {
+  const hasAuth = hasSessionCookie(request);
+
+  const protectedPaths = ["/dashboard", "/applications", "/resume", "/research"];
   const isProtected = protectedPaths.some((p) =>
     request.nextUrl.pathname.startsWith(p)
   );

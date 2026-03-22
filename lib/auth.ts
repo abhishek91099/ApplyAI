@@ -24,14 +24,36 @@ export function getUser(): AuthUser | null {
   }
 }
 
+const AUTH_COOKIE_NAME = "applyai_auth";
+const AUTH_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
+
+export function setAuthCookieMarker() {
+  if (typeof document === "undefined") return;
+  document.cookie = `${AUTH_COOKIE_NAME}=1; path=/; max-age=${AUTH_COOKIE_MAX_AGE}; SameSite=Lax`;
+}
+
+/** Returns true if the cookie was missing and is now set (caller may want to refresh). */
+export function syncAuthCookieFromStorage(): boolean {
+  if (typeof document === "undefined") return false;
+  if (!localStorage.getItem(TOKEN_KEY)) return false;
+  const raw = document.cookie.split(";").map((c) => c.trim());
+  for (const part of raw) {
+    if (!part.startsWith(`${AUTH_COOKIE_NAME}=`)) continue;
+    const v = part.slice(AUTH_COOKIE_NAME.length + 1);
+    if (v && v !== "0") return false;
+  }
+  setAuthCookieMarker();
+  return true;
+}
+
 export function setAuth(token: string, user: AuthUser) {
   localStorage.setItem(TOKEN_KEY, token);
   localStorage.setItem(USER_KEY, JSON.stringify(user));
-  document.cookie = `applyai_auth=1; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
+  setAuthCookieMarker();
 }
 
 export function clearAuth() {
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(USER_KEY);
-  document.cookie = "applyai_auth=; path=/; max-age=0; SameSite=Lax";
+  document.cookie = `${AUTH_COOKIE_NAME}=; path=/; max-age=0; SameSite=Lax`;
 }

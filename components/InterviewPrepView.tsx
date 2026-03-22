@@ -111,7 +111,7 @@ function ExternalLink({ href, children, className = "" }: { href: string; childr
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className={`inline-flex items-center gap-1 text-indigo-400 hover:text-indigo-300 transition-colors ${className}`}
+      className={`inline-flex items-center gap-1 text-brand-400 hover:text-brand-300 transition-colors ${className}`}
     >
       {children}
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="h-3 w-3 shrink-0 opacity-60">
@@ -144,7 +144,7 @@ export function InterviewPrepView({ prep }: { prep: InterviewPrep }) {
               onClick={() => setSection(tab)}
               className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
                 section === tab
-                  ? "bg-indigo-500/15 border border-indigo-500/30 text-indigo-400"
+                  ? "bg-brand-500/15 border border-brand-500/30 text-brand-400"
                   : "border border-white/[0.06] text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.04]"
               }`}
             >
@@ -160,18 +160,18 @@ export function InterviewPrepView({ prep }: { prep: InterviewPrep }) {
           <div key={i} className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
             <div className="flex items-center justify-between mb-1.5">
               <div className="flex items-center gap-2">
-                <span className="flex items-center justify-center h-6 w-6 rounded-full bg-indigo-500/15 text-xs font-bold text-indigo-400">{i + 1}</span>
+                <span className="flex items-center justify-center h-6 w-6 rounded-full bg-brand-500/15 text-xs font-bold text-brand-400">{i + 1}</span>
                 <span className="text-sm font-semibold text-zinc-200">{round.round}</span>
                 {round.is_typical && <span className="rounded-full bg-zinc-500/10 border border-zinc-500/20 px-2 py-0.5 text-[10px] text-zinc-500">typical</span>}
               </div>
-              <span className="rounded-full bg-indigo-500/10 border border-indigo-500/20 px-2.5 py-0.5 text-xs text-indigo-400">{round.duration}</span>
+              <span className="rounded-full bg-brand-500/10 border border-brand-500/20 px-2.5 py-0.5 text-xs text-brand-400">{round.duration}</span>
             </div>
             {round.interviewer && (
               <p className="text-xs text-zinc-500 mb-1">Interviewer: <span className="text-zinc-400">{round.interviewer}</span></p>
             )}
             <p className="text-sm text-zinc-400">{round.description}</p>
             {round.how_to_prepare && (
-              <p className="text-xs text-indigo-400 bg-indigo-500/10 rounded-lg px-3 py-2 mt-2">
+              <p className="text-xs text-brand-400 bg-brand-500/10 rounded-lg px-3 py-2 mt-2">
                 <span className="font-semibold">Prepare:</span> {round.how_to_prepare}
               </p>
             )}
@@ -258,12 +258,12 @@ export function InterviewPrepView({ prep }: { prep: InterviewPrep }) {
 
               {/* Standout tips */}
               {exp.standout_tips && exp.standout_tips.length > 0 && (
-                <div className="rounded-xl border border-indigo-500/10 bg-indigo-500/[0.04] p-4">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-indigo-500 mb-2">How to Stand Out</p>
+                <div className="rounded-xl border border-brand-500/10 bg-brand-500/[0.04] p-4">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-brand-500 mb-2">How to Stand Out</p>
                   <ul className="space-y-1.5">
                     {exp.standout_tips.map((t, i) => (
-                      <li key={i} className="text-sm text-indigo-300/80 flex gap-2">
-                        <span className="text-indigo-400 shrink-0 font-bold">+</span> {t}
+                      <li key={i} className="text-sm text-brand-300/80 flex gap-2">
+                        <span className="text-brand-400 shrink-0 font-bold">+</span> {t}
                       </li>
                     ))}
                   </ul>
@@ -293,7 +293,7 @@ export function InterviewPrepView({ prep }: { prep: InterviewPrep }) {
                       {t.what_to_study && <p className="text-xs text-zinc-400 mt-1">{t.what_to_study}</p>}
                       {(t.study_time || t.reason) && (
                         <p className="text-[11px] text-zinc-600 mt-1">
-                          {t.study_time && <span className="text-indigo-400/70">{t.study_time}</span>}
+                          {t.study_time && <span className="text-brand-400/70">{t.study_time}</span>}
                           {t.study_time && t.reason && " · "}
                           {t.reason}
                         </p>
@@ -340,7 +340,7 @@ export function InterviewPrepView({ prep }: { prep: InterviewPrep }) {
                     <span className={`shrink-0 rounded-full border px-2 py-0.5 text-xs font-medium ${DIFFICULTY_COLORS[q.difficulty] || "bg-white/[0.04] text-zinc-400 border-white/[0.08]"}`}>{q.difficulty}</span>
                   )}
                 </div>
-                <p className="text-xs text-indigo-400 bg-indigo-500/10 rounded-lg px-3 py-2 mt-2">{q.hint}</p>
+                <p className="text-xs text-brand-400 bg-brand-500/10 rounded-lg px-3 py-2 mt-2">{q.hint}</p>
                 {q.why_theyre_asking && <p className="text-xs text-zinc-500 mt-1.5 italic">Tests: {q.why_theyre_asking}</p>}
               </div>
             ))}
@@ -348,7 +348,7 @@ export function InterviewPrepView({ prep }: { prep: InterviewPrep }) {
             {questionTab === "behavioral" && prep.behavioral_questions.map((q, i) => (
               <div key={i} className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
                 <p className="text-sm font-medium text-zinc-200 mb-1">{i + 1}. {q.question}</p>
-                <p className="text-xs text-indigo-400 bg-indigo-500/10 rounded-lg px-3 py-2 mt-2">{q.hint}</p>
+                <p className="text-xs text-brand-400 bg-brand-500/10 rounded-lg px-3 py-2 mt-2">{q.hint}</p>
                 {q.what_they_want_to_hear && (
                   <p className="text-xs text-emerald-400 bg-emerald-500/10 rounded-lg px-3 py-2 mt-1.5">Good answer: {q.what_they_want_to_hear}</p>
                 )}

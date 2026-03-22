@@ -114,7 +114,7 @@ export function GoogleSignInButton() {
         type="button"
         onClick={handleClick}
         disabled={!ready || loading}
-        className="flex w-full items-center justify-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-sm font-medium text-zinc-300 hover:bg-white/[0.06] hover:border-white/[0.12] disabled:opacity-50 transition-all"
+        className="flex w-full items-center justify-center gap-3 rounded-xl border border-white/[0.1] bg-white/[0.04] px-4 py-3.5 text-sm font-semibold text-zinc-200 shadow-inner-glow transition-all duration-200 hover:border-white/[0.14] hover:bg-white/[0.07] disabled:opacity-50"
       >
         {loading ? (
           <Spinner className="h-4 w-4" />

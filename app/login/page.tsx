@@ -32,86 +32,114 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center px-4 bg-base relative">
-      <div className="absolute inset-0 bg-gradient-mesh opacity-30" />
-      <div className="absolute top-1/3 left-1/4 w-[400px] h-[400px] bg-indigo-600/[0.05] rounded-full blur-[120px]" />
+    <main className="app-page-bg relative min-h-screen">
+      <div className="pointer-events-none absolute inset-0 bg-grid-pattern bg-grid opacity-25" />
+      <div className="pointer-events-none absolute left-0 top-0 h-[min(55vh,480px)] w-[min(55vw,420px)] rounded-full bg-brand-500/[0.08] blur-[100px]" />
+      <div className="pointer-events-none absolute bottom-0 right-0 h-[min(50vh,400px)] w-[min(50vw,380px)] rounded-full bg-fuchsia-600/[0.07] blur-[100px]" />
 
-      <div className="relative w-full max-w-sm space-y-8">
-        <div className="text-center">
-          <div className="flex justify-center mb-8">
-            <Logo size="large" linkTo="/" />
+      <div className="relative mx-auto flex min-h-screen max-w-6xl flex-col lg:flex-row">
+        <div className="relative hidden flex-1 flex-col justify-between p-10 lg:flex xl:p-14">
+          <Logo size="default" linkTo="/" />
+          <div className="space-y-6">
+            <p className="font-mono text-xs uppercase tracking-[0.35em] text-brand-400/80">
+              Secure access
+            </p>
+            <h1 className="max-w-md text-4xl font-bold leading-tight tracking-tight text-white xl:text-5xl">
+              Pick up exactly where you left your applications.
+            </h1>
+            <p className="max-w-sm text-sm leading-relaxed text-zinc-500">
+              Dashboard, drafts, and exports stay in sync — one sign-in for the
+              whole workflow.
+            </p>
           </div>
-          <h1 className="text-2xl font-bold text-white">Welcome back</h1>
-          <p className="mt-2 text-sm text-zinc-500">Sign in to continue</p>
+          <p className="text-xs text-zinc-600">
+            Encrypted session · Sign out anytime from the nav
+          </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {error && (
-            <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-3.5 text-sm text-red-400 flex items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 shrink-0">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
-              </svg>
-              {error}
+        <div className="flex flex-1 flex-col justify-center px-4 py-12 sm:px-6 lg:px-10">
+          <div className="mx-auto w-full max-w-md space-y-8">
+            <div className="text-center lg:text-left">
+              <div className="mb-8 flex justify-center lg:hidden">
+                <Logo size="large" linkTo="/" />
+              </div>
+              <h2 className="text-2xl font-bold tracking-tight text-white">
+                Welcome back
+              </h2>
+              <p className="mt-2 text-sm text-zinc-500">Sign in to your workspace</p>
             </div>
-          )}
 
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-zinc-400 mb-1.5">
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="block w-full rounded-xl border border-white/[0.08] bg-surface px-4 py-3 text-sm text-white placeholder:text-zinc-600 focus:border-indigo-500/50 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none transition-all"
-              placeholder="you@example.com"
-            />
-          </div>
+            <form onSubmit={handleSubmit} className="card-elevated space-y-5 p-6 sm:p-8">
+              {error && (
+                <div className="flex items-center gap-2 rounded-xl border border-red-500/25 bg-red-500/10 p-3.5 text-sm text-red-300">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 shrink-0">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+                  </svg>
+                  {error}
+                </div>
+              )}
 
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-zinc-400 mb-1.5">
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="block w-full rounded-xl border border-white/[0.08] bg-surface px-4 py-3 text-sm text-white placeholder:text-zinc-600 focus:border-indigo-500/50 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none transition-all"
-              placeholder="Your password"
-            />
-          </div>
+              <div>
+                <label htmlFor="email" className="mb-2 block text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                  Email
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="input-modern"
+                  placeholder="you@example.com"
+                  autoComplete="email"
+                />
+              </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-accent px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30 disabled:opacity-50 transition-all"
-          >
-            {loading && <Spinner className="h-4 w-4" />}
-            Sign In
-          </button>
-        </form>
+              <div>
+                <label htmlFor="password" className="mb-2 block text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                  Password
+                </label>
+                <input
+                  id="password"
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="input-modern"
+                  placeholder="Your password"
+                  autoComplete="current-password"
+                />
+              </div>
 
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-white/[0.06]" />
-          </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="bg-base px-3 text-zinc-600">or</span>
+              <button type="submit" disabled={loading} className="btn-primary w-full py-3.5">
+                {loading && <Spinner className="h-4 w-4" />}
+                Sign in
+              </button>
+            </form>
+
+            <div className="relative px-2">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-white/[0.08]" />
+              </div>
+              <div className="relative flex justify-center text-xs">
+                <span className="bg-base/90 px-3 font-medium uppercase tracking-wider text-zinc-600">
+                  or continue with
+                </span>
+              </div>
+            </div>
+
+            <div className="px-2">
+              <GoogleSignInButton />
+            </div>
+
+            <p className="text-center text-sm text-zinc-500">
+              Don&apos;t have an account?{" "}
+              <Link href="/signup" className="font-semibold text-brand-400 transition-colors hover:text-brand-300">
+                Sign up
+              </Link>
+            </p>
           </div>
         </div>
-
-        <GoogleSignInButton />
-
-        <p className="text-center text-sm text-zinc-500">
-          Don&apos;t have an account?{" "}
-          <Link href="/signup" className="font-semibold text-indigo-400 hover:text-indigo-300 transition-colors">
-            Sign up
-          </Link>
-        </p>
       </div>
     </main>
   );

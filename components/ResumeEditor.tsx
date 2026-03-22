@@ -282,9 +282,9 @@ export function ResumeEditor({ applicationId, initialText, originalResume, jobTi
 
       {editing ? (
         <div className="space-y-3">
-          <textarea value={text} onChange={(e) => setText(e.target.value)} rows={20} className="block w-full rounded-xl border border-white/[0.08] bg-surface px-4 py-3 text-sm font-mono text-zinc-200 focus:border-indigo-500/50 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none transition-all" />
+          <textarea value={text} onChange={(e) => setText(e.target.value)} rows={20} className="block w-full rounded-xl border border-white/[0.08] bg-surface px-4 py-3 text-sm font-mono text-zinc-200 focus:border-brand-500/50 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition-all" />
           <div className="flex items-center gap-2">
-            <button onClick={handleSave} disabled={saving} className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-accent px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 disabled:opacity-50 transition-all">
+            <button onClick={handleSave} disabled={saving} className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-accent px-4 py-2 text-sm font-semibold text-white shadow-glow-brand disabled:opacity-50 transition-all">
               {saving && <Spinner className="h-3.5 w-3.5" />} Save Changes
             </button>
             <button onClick={() => { setText(savedText); setEditing(false); }} className="rounded-xl border border-white/[0.08] px-4 py-2 text-sm font-medium text-zinc-400 hover:bg-white/[0.04] transition-all">Cancel</button>
@@ -309,7 +309,7 @@ function DownloadResumeButton({ text, jobTitle, company }: { text: string; jobTi
   return (
     <button
       onClick={() => exportResumePdf(text, jobTitle, company)}
-      className="inline-flex items-center gap-2 rounded-xl border border-indigo-500/20 bg-indigo-500/10 px-4 py-2.5 text-sm font-semibold text-indigo-400 hover:bg-indigo-500/20 transition-all"
+      className="inline-flex items-center gap-2 rounded-xl border border-brand-500/20 bg-brand-500/10 px-4 py-2.5 text-sm font-semibold text-brand-400 hover:bg-brand-500/20 transition-all"
     >
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
         <path d="M10.75 2.75a.75.75 0 00-1.5 0v8.614L6.295 8.235a.75.75 0 10-1.09 1.03l4.25 4.5a.75.75 0 001.09 0l4.25-4.5a.75.75 0 00-1.09-1.03l-2.955 3.129V2.75z" />
