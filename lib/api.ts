@@ -55,6 +55,34 @@ export async function googleLogin(credential: string) {
   );
 }
 
+type GoogleAuthResult = {
+  token: string;
+  user: { id: string; email: string; name?: string; avatar_url?: string };
+};
+
+/** Authorization code from redirect flow — exchange on server with client secret. */
+export async function googleOAuthExchange(code: string, redirectUri: string): Promise<GoogleAuthResult> {
+  return request<GoogleAuthResult>("/api/auth/google/oauth", {
+    method: "POST",
+    body: JSON.stringify({ code, redirect_uri: redirectUri }),
+  });
+}
+
+/** One exchange per auth code (avoids duplicate POST in React Strict Mode dev). */
+let _googleOAuthOnce: { code: string; promise: Promise<GoogleAuthResult> } | null = null;
+
+export function googleOAuthExchangeOnce(code: string, redirectUri: string): Promise<GoogleAuthResult> {
+  if (!_googleOAuthOnce || _googleOAuthOnce.code !== code) {
+    _googleOAuthOnce = {
+      code,
+      promise: googleOAuthExchange(code, redirectUri).finally(() => {
+        _googleOAuthOnce = null;
+      }),
+    };
+  }
+  return _googleOAuthOnce.promise;
+}
+
 // ── AI ──────────────────────────────────────────────
 
 export async function extractCandidateInfo(

@@ -57,6 +57,12 @@ export function Navbar() {
             </>
           ) : (
             <>
+              <Link href="/resume" className={navLinkClass(pathname === "/resume")}>
+                Résumé
+              </Link>
+              <Link href="/research" className={navLinkClass(pathname === "/research")}>
+                Intelligence
+              </Link>
               <Link href="/login" className="text-[#a1a1a6] transition-colors hover:text-[#f5f5f7]">
                 Sign in
               </Link>
@@ -64,7 +70,7 @@ export function Navbar() {
                 href="/signup"
                 className="rounded-full bg-[#2997ff] px-5 py-2 text-white transition-colors hover:bg-[#147ce5]"
               >
-                Get started
+                Sign up
               </Link>
             </>
           )}

@@ -7,6 +7,7 @@ import { Navbar } from "@/components/Navbar";
 import { Spinner } from "@/components/Spinner";
 import { InterviewPrepView } from "@/components/InterviewPrepView";
 import { getApplication, getInterviewPrep, updateApplication } from "@/lib/api";
+import { getToken } from "@/lib/auth";
 import { normalizePrepError } from "@/lib/utils";
 import type { InterviewPrep } from "@/lib/types";
 
@@ -18,14 +19,16 @@ function ResearchContent() {
   const [company, setCompany] = useState("");
   const [jobDescription, setJobDescription] = useState("");
   const [experienceYears, setExperienceYears] = useState<number>(0);
-  const [loadingApp, setLoadingApp] = useState(!!applicationId);
+  const isLoggedIn = !!getToken();
+  const canLoadApp = !!applicationId && isLoggedIn;
+  const [loadingApp, setLoadingApp] = useState(canLoadApp);
   const [generating, setGenerating] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [prep, setPrep] = useState<InterviewPrep | null>(null);
 
   useEffect(() => {
-    if (!applicationId) {
+    if (!applicationId || !isLoggedIn) {
       setLoadingApp(false);
       return;
     }
@@ -48,7 +51,7 @@ function ResearchContent() {
     return () => {
       cancelled = true;
     };
-  }, [applicationId]);
+  }, [applicationId, isLoggedIn]);
 
   const canRun = jobTitle.trim() && company.trim() && jobDescription.trim();
 
@@ -103,10 +106,16 @@ function ResearchContent() {
       </div>
 
       <div className="apple-panel space-y-6 p-6 sm:p-9">
-        {applicationId && (
+        {applicationId && isLoggedIn && (
           <p className="text-xs text-[#2997ff]">
             Linked to saved application — generate below, then attach to that record.
           </p>
+        )}
+        {applicationId && !isLoggedIn && (
+          <div className="rounded-xl border border-amber-500/25 bg-amber-500/[0.06] p-3 text-xs text-amber-300/90">
+            Sign in to load and save to your application.{" "}
+            <Link href={`/login?redirect=/research?applicationId=${applicationId}`} className="text-[#2997ff] hover:underline">Sign in</Link>
+          </div>
         )}
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
@@ -159,7 +168,7 @@ function ResearchContent() {
             {generating && <Spinner className="h-4 w-4" />}
             {generating ? "Synthesizing…" : "Generate intelligence"}
           </button>
-          {applicationId && prep && (
+          {applicationId && isLoggedIn && prep && (
             <button type="button" onClick={saveToRole} disabled={saving} className="btn-ghost-apple">
               {saving ? <Spinner className="h-4 w-4" /> : null}
               {saving ? "Saving…" : "Save to this application"}
@@ -168,6 +177,14 @@ function ResearchContent() {
         </div>
         {error && (
           <div className="rounded-xl border border-red-500/25 bg-red-950/40 p-3 text-sm text-red-300/95">{error}</div>
+        )}
+        {!isLoggedIn && prep && (
+          <div className="flex items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.02] px-4 py-3">
+            <p className="flex-1 text-xs text-[#a1a1a6]">
+              Save intelligence to your applications.{" "}
+              <Link href="/signup?redirect=/research" className="text-[#2997ff] hover:underline">Sign up free</Link>
+            </p>
+          </div>
         )}
       </div>
 

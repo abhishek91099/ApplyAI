@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { getToken, syncAuthCookieFromStorage } from "@/lib/auth";
 
 /**
@@ -12,14 +12,16 @@ import { getToken, syncAuthCookieFromStorage } from "@/lib/auth";
 export function AuthCookieSync() {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     if (!getToken()) return;
     syncAuthCookieFromStorage();
     if (pathname === "/login" || pathname === "/signup") {
-      router.replace("/dashboard");
+      const redirect = searchParams.get("redirect") || "/dashboard";
+      router.replace(redirect);
     }
-  }, [pathname, router]);
+  }, [pathname, router, searchParams]);
 
   return null;
 }

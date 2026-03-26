@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { login } from "@/lib/api";
 import { setAuth } from "@/lib/auth";
@@ -9,8 +9,10 @@ import { Spinner } from "@/components/Spinner";
 import { GoogleSignInButton } from "@/components/GoogleSignInButton";
 import { Logo } from "@/components/Logo";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirect") || "/dashboard";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -23,7 +25,7 @@ export default function LoginPage() {
     try {
       const data = await login(email, password);
       setAuth(data.token, data.user);
-      router.push("/dashboard");
+      router.push(redirectTo);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Login failed");
     } finally {
@@ -129,12 +131,12 @@ export default function LoginPage() {
             </div>
 
             <div className="px-2">
-              <GoogleSignInButton />
+              <GoogleSignInButton redirectTo={redirectTo} />
             </div>
 
             <p className="text-center text-sm text-zinc-500">
               Don&apos;t have an account?{" "}
-              <Link href="/signup" className="font-semibold text-brand-400 transition-colors hover:text-brand-300">
+              <Link href={redirectTo !== "/dashboard" ? `/signup?redirect=${encodeURIComponent(redirectTo)}` : "/signup"} className="font-semibold text-brand-400 transition-colors hover:text-brand-300">
                 Sign up
               </Link>
             </p>
@@ -142,5 +144,13 @@ export default function LoginPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center bg-black"><Spinner className="h-8 w-8 text-[#2997ff]" /></div>}>
+      <LoginForm />
+    </Suspense>
   );
 }

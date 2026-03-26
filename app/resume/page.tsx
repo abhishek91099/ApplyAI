@@ -19,6 +19,7 @@ import {
   extractUrl,
   extractCandidateInfo,
 } from "@/lib/api";
+import { getToken } from "@/lib/auth";
 import type { TailorResult, ScoreResult, CoverLetterResult, FollowUpEmail } from "@/lib/types";
 
 const INPUT_CLASS = "input-modern";
@@ -73,6 +74,7 @@ export default function ResumeStudioPage() {
   const [infoAutoFilled, setInfoAutoFilled] = useState(false);
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState<"resume" | "cover" | "followup">("resume");
+  const [showAuthPrompt, setShowAuthPrompt] = useState(false);
   const extractTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const hasResults = !!(tailorResult || scoreResult || coverLetterResult || followUpEmails.length > 0);
@@ -152,6 +154,10 @@ export default function ResumeStudioPage() {
   };
 
   const handleSave = async () => {
+    if (!getToken()) {
+      setShowAuthPrompt(true);
+      return;
+    }
     setSaving(true);
     setError("");
     try {
@@ -675,6 +681,45 @@ export default function ResumeStudioPage() {
                 </div>
               )}
             </div>
+
+            {showAuthPrompt && (
+              <div className="rounded-xl border border-[#2997ff]/25 bg-[#2997ff]/[0.06] p-5">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="space-y-1.5">
+                    <p className="text-sm font-semibold text-[#f5f5f7]">Create a free account to save your work</p>
+                    <p className="text-xs leading-relaxed text-[#a1a1a6]">
+                      Your results are ready — sign up to save them to your archive and track applications.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowAuthPrompt(false)}
+                    className="shrink-0 text-[#a1a1a6] hover:text-[#f5f5f7]"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
+                      <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+                    </svg>
+                  </button>
+                </div>
+                <div className="mt-4 flex flex-wrap gap-3">
+                  <Link href="/signup?redirect=/resume" className="btn-primary py-2.5 text-sm">
+                    Sign up free
+                  </Link>
+                  <Link href="/login?redirect=/resume" className="btn-ghost-apple py-2.5 text-sm">
+                    Sign in
+                  </Link>
+                </div>
+              </div>
+            )}
+
+            {!getToken() && !showAuthPrompt && (
+              <div className="flex items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.02] px-4 py-3">
+                <p className="flex-1 text-xs text-[#a1a1a6]">
+                  Want to save and track this?{" "}
+                  <Link href="/signup?redirect=/resume" className="text-[#2997ff] hover:underline">Sign up free</Link>
+                </p>
+              </div>
+            )}
 
             <button type="button" onClick={handleSave} disabled={saving} className="btn-primary">
               {saving ? <Spinner className="h-4 w-4" /> : null}

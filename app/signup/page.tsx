@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { signup } from "@/lib/api";
 import { setAuth } from "@/lib/auth";
@@ -9,8 +9,10 @@ import { Spinner } from "@/components/Spinner";
 import { GoogleSignInButton } from "@/components/GoogleSignInButton";
 import { Logo } from "@/components/Logo";
 
-export default function SignupPage() {
+function SignupForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirect") || "/dashboard";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -23,7 +25,7 @@ export default function SignupPage() {
     try {
       const data = await signup(email, password);
       setAuth(data.token, data.user);
-      router.push("/dashboard");
+      router.push(redirectTo);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Signup failed");
     } finally {
@@ -130,12 +132,12 @@ export default function SignupPage() {
             </div>
 
             <div className="px-2">
-              <GoogleSignInButton />
+              <GoogleSignInButton redirectTo={redirectTo} />
             </div>
 
             <p className="text-center text-sm text-zinc-500">
               Already have an account?{" "}
-              <Link href="/login" className="font-semibold text-brand-400 transition-colors hover:text-brand-300">
+              <Link href={redirectTo !== "/dashboard" ? `/login?redirect=${encodeURIComponent(redirectTo)}` : "/login"} className="font-semibold text-brand-400 transition-colors hover:text-brand-300">
                 Sign in
               </Link>
             </p>
@@ -143,5 +145,13 @@ export default function SignupPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center bg-black"><Spinner className="h-8 w-8 text-[#2997ff]" /></div>}>
+      <SignupForm />
+    </Suspense>
   );
 }

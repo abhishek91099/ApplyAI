@@ -58,6 +58,8 @@ def _is_allowed(key: str, limit: int) -> bool:
 def _path_category(path: str) -> str:
     if path.startswith("/api/auth/signup") or path.startswith("/api/auth/login"):
         return "auth"
+    if path.startswith("/api/auth/google"):
+        return "auth"
     if path.startswith("/api/auth/"):
         return "auth_other"
     if any(

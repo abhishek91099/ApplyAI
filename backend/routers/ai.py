@@ -2,7 +2,7 @@ import logging
 
 from fastapi import APIRouter, Depends, UploadFile, File, HTTPException
 from pydantic import BaseModel
-from dependencies import get_current_user_id
+from dependencies import get_optional_user_id
 from services.openai_service import (
     extract_candidate_info,
     tailor_resume,
@@ -67,24 +67,24 @@ class ExtractInfoRequest(BaseModel):
 @router.post("/extract-candidate-info")
 async def extract_candidate_info_endpoint(
     body: ExtractInfoRequest,
-    user_id: str = Depends(get_current_user_id),
+    user_id: str | None = Depends(get_optional_user_id),
 ):
-    logger.info(f"extract-info | user={user_id} | resume_len={len(body.resume_text)}")
+    logger.info(f"extract-info | user={user_id or 'anon'} | resume_len={len(body.resume_text)}")
     try:
         result = extract_candidate_info(body.resume_text)
-        logger.info(f"extract-info | user={user_id} | OK | name={result.get('name')} | role={result.get('current_role')} | exp={result.get('experience_years')}")
+        logger.info(f"extract-info | user={user_id or 'anon'} | OK | name={result.get('name')} | role={result.get('current_role')} | exp={result.get('experience_years')}")
         return result
     except Exception as e:
-        logger.error(f"extract-info | user={user_id} | ERROR: {e}")
+        logger.error(f"extract-info | user={user_id or 'anon'} | ERROR: {e}")
         return {"name": "", "current_role": "", "experience_years": 0}
 
 
 @router.post("/tailor-resume")
 async def tailor_resume_endpoint(
     body: TailorRequest,
-    user_id: str = Depends(get_current_user_id),
+    user_id: str | None = Depends(get_optional_user_id),
 ):
-    logger.info(f"tailor-resume | user={user_id} | exp={body.experience_years}yrs | role={body.current_role} -> {body.target_role} | career_change={body.is_career_change} | resume_len={len(body.resume_text)} | jd_len={len(body.job_description)}")
+    logger.info(f"tailor-resume | user={user_id or 'anon'} | exp={body.experience_years}yrs | role={body.current_role} -> {body.target_role} | career_change={body.is_career_change} | resume_len={len(body.resume_text)} | jd_len={len(body.job_description)}")
     try:
         result = tailor_resume(
             body.resume_text,
@@ -94,40 +94,40 @@ async def tailor_resume_endpoint(
             body.target_role,
             body.is_career_change,
         )
-        logger.info(f"tailor-resume | user={user_id} | OK | result_len={len(result.get('tailored_resume', ''))}")
+        logger.info(f"tailor-resume | user={user_id or 'anon'} | OK | result_len={len(result.get('tailored_resume', ''))}")
         return result
     except ValueError as e:
-        logger.warning(f"tailor-resume | user={user_id} | VALIDATION: {e}")
+        logger.warning(f"tailor-resume | user={user_id or 'anon'} | VALIDATION: {e}")
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        logger.error(f"tailor-resume | user={user_id} | ERROR: {e}")
+        logger.error(f"tailor-resume | user={user_id or 'anon'} | ERROR: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.post("/score-resume")
 async def score_resume_endpoint(
     body: ScoreRequest,
-    user_id: str = Depends(get_current_user_id),
+    user_id: str | None = Depends(get_optional_user_id),
 ):
-    logger.info(f"score-resume | user={user_id} | resume_len={len(body.resume_text)} | jd_len={len(body.job_description)}")
+    logger.info(f"score-resume | user={user_id or 'anon'} | resume_len={len(body.resume_text)} | jd_len={len(body.job_description)}")
     try:
         result = score_resume(body.resume_text, body.job_description)
-        logger.info(f"score-resume | user={user_id} | OK | ats_score={result.get('ats_score')}")
+        logger.info(f"score-resume | user={user_id or 'anon'} | OK | ats_score={result.get('ats_score')}")
         return result
     except ValueError as e:
-        logger.warning(f"score-resume | user={user_id} | VALIDATION: {e}")
+        logger.warning(f"score-resume | user={user_id or 'anon'} | VALIDATION: {e}")
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        logger.error(f"score-resume | user={user_id} | ERROR: {e}")
+        logger.error(f"score-resume | user={user_id or 'anon'} | ERROR: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.post("/generate-cover-letter")
 async def generate_cover_letter_endpoint(
     body: CoverLetterRequest,
-    user_id: str = Depends(get_current_user_id),
+    user_id: str | None = Depends(get_optional_user_id),
 ):
-    logger.info(f"cover-letter | user={user_id} | candidate={body.candidate_name} | company={body.company_name} | role={body.target_role}")
+    logger.info(f"cover-letter | user={user_id or 'anon'} | candidate={body.candidate_name} | company={body.company_name} | role={body.target_role}")
     try:
         result = generate_cover_letter(
             body.resume_text,
@@ -139,22 +139,22 @@ async def generate_cover_letter_endpoint(
             body.target_role,
             body.is_career_change,
         )
-        logger.info(f"cover-letter | user={user_id} | OK | tone={result.get('tone_used')} | len={len(result.get('cover_letter', ''))}")
+        logger.info(f"cover-letter | user={user_id or 'anon'} | OK | tone={result.get('tone_used')} | len={len(result.get('cover_letter', ''))}")
         return result
     except ValueError as e:
-        logger.warning(f"cover-letter | user={user_id} | VALIDATION: {e}")
+        logger.warning(f"cover-letter | user={user_id or 'anon'} | VALIDATION: {e}")
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        logger.error(f"cover-letter | user={user_id} | ERROR: {e}")
+        logger.error(f"cover-letter | user={user_id or 'anon'} | ERROR: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.post("/generate-followups")
 async def generate_followups_endpoint(
     body: FollowUpRequest,
-    user_id: str = Depends(get_current_user_id),
+    user_id: str | None = Depends(get_optional_user_id),
 ):
-    logger.info(f"followups | user={user_id} | job={body.job_title} @ {body.company} | interviewer={body.interviewer_name}")
+    logger.info(f"followups | user={user_id or 'anon'} | job={body.job_title} @ {body.company} | interviewer={body.interviewer_name}")
     try:
         emails = generate_follow_up_emails(
             body.job_title,
@@ -164,19 +164,19 @@ async def generate_followups_endpoint(
             body.something_discussed,
             body.interview_date,
         )
-        logger.info(f"followups | user={user_id} | OK | emails_count={len(emails)}")
+        logger.info(f"followups | user={user_id or 'anon'} | OK | emails_count={len(emails)}")
         return {"emails": emails}
     except Exception as e:
-        logger.error(f"followups | user={user_id} | ERROR: {e}")
+        logger.error(f"followups | user={user_id or 'anon'} | ERROR: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.post("/interview-prep")
 async def interview_prep_endpoint(
     body: InterviewPrepRequest,
-    user_id: str = Depends(get_current_user_id),
+    user_id: str | None = Depends(get_optional_user_id),
 ):
-    logger.info(f"interview-prep | user={user_id} | job={body.job_title} @ {body.company} | exp={body.experience_years}yrs")
+    logger.info(f"interview-prep | user={user_id or 'anon'} | job={body.job_title} @ {body.company} | exp={body.experience_years}yrs")
     try:
         result = generate_interview_prep(
             body.job_title,
@@ -185,10 +185,10 @@ async def interview_prep_endpoint(
             body.experience_years,
             body.candidate_skills,
         )
-        logger.info(f"interview-prep | user={user_id} | OK | questions={len(result.get('technical_questions', []))}")
+        logger.info(f"interview-prep | user={user_id or 'anon'} | OK | questions={len(result.get('technical_questions', []))}")
         return result
     except Exception as e:
-        logger.error(f"interview-prep | user={user_id} | ERROR: {e}")
+        logger.error(f"interview-prep | user={user_id or 'anon'} | ERROR: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -199,21 +199,21 @@ class ExtractUrlRequest(BaseModel):
 @router.post("/extract-url")
 async def extract_url_endpoint(
     body: ExtractUrlRequest,
-    user_id: str = Depends(get_current_user_id),
+    user_id: str | None = Depends(get_optional_user_id),
 ):
     import trafilatura
 
     url = body.url.strip()
-    logger.info(f"extract-url | user={user_id} | url={url}")
+    logger.info(f"extract-url | user={user_id or 'anon'} | url={url}")
 
     if not url.startswith(("http://", "https://")):
-        logger.warning(f"extract-url | user={user_id} | invalid URL: {url}")
+        logger.warning(f"extract-url | user={user_id or 'anon'} | invalid URL: {url}")
         raise HTTPException(status_code=400, detail="Invalid URL")
 
     try:
         downloaded = trafilatura.fetch_url(url)
         if not downloaded:
-            logger.warning(f"extract-url | user={user_id} | fetch failed for {url}")
+            logger.warning(f"extract-url | user={user_id or 'anon'} | fetch failed for {url}")
             raise HTTPException(
                 status_code=422,
                 detail="Could not fetch this URL. The site may block automated access. Please paste the job description manually.",
@@ -226,18 +226,18 @@ async def extract_url_endpoint(
             favor_recall=True,
         )
         if not text or not text.strip():
-            logger.warning(f"extract-url | user={user_id} | extraction empty for {url}")
+            logger.warning(f"extract-url | user={user_id or 'anon'} | extraction empty for {url}")
             raise HTTPException(
                 status_code=422,
                 detail="Could not extract text from this page. Try pasting the job description manually.",
             )
 
-        logger.info(f"extract-url | user={user_id} | OK | extracted_len={len(text.strip())}")
+        logger.info(f"extract-url | user={user_id or 'anon'} | OK | extracted_len={len(text.strip())}")
         return {"text": text.strip()}
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"extract-url | user={user_id} | ERROR: {e}")
+        logger.error(f"extract-url | user={user_id or 'anon'} | ERROR: {e}")
         raise HTTPException(
             status_code=422,
             detail="Failed to extract content from this URL. Please paste the job description manually.",
@@ -247,7 +247,7 @@ async def extract_url_endpoint(
 @router.post("/extract-pdf")
 async def extract_pdf_endpoint(
     file: UploadFile = File(...),
-    user_id: str = Depends(get_current_user_id),
+    user_id: str | None = Depends(get_optional_user_id),
 ):
     if not file.filename or not file.filename.lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Only PDF files are supported")

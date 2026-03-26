@@ -29,10 +29,10 @@ export default function LandingPage() {
               Sign in
             </Link>
             <Link
-              href="/signup"
+              href="/resume"
               className="rounded-full bg-[#2997ff] px-5 py-2 text-white hover:bg-[#147ce5]"
             >
-              Get started
+              Try it free
             </Link>
           </div>
         </div>
@@ -54,8 +54,8 @@ export default function LandingPage() {
               less time formatting and more time getting to yes.
             </p>
             <div className="animate-fade-in delay-2 mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row sm:gap-5">
-              <Link href="/signup" className="btn-primary min-w-[200px] py-3.5">
-                Get started
+              <Link href="/resume" className="btn-primary min-w-[200px] py-3.5">
+                Try it free
               </Link>
               <Link
                 href="#learn-more"
@@ -124,10 +124,10 @@ export default function LandingPage() {
               Ready when you are.
             </h2>
             <p className="mx-auto mt-4 max-w-[480px] text-[17px] text-[#a1a1a6]">
-              No credit card to explore. Sign up and run your first application in minutes.
+              No sign-up required. Try the full workflow now — create an account when you want to save.
             </p>
-            <Link href="/signup" className="btn-primary mt-10 inline-flex min-w-[220px] py-3.5">
-              Create account
+            <Link href="/resume" className="btn-primary mt-10 inline-flex min-w-[220px] py-3.5">
+              Start for free
             </Link>
           </div>
         </section>

@@ -37,10 +37,6 @@ export default function RootLayout({
         </Script>
         <AuthCookieSync />
         {children}
-        <Script
-          src="https://accounts.google.com/gsi/client"
-          strategy="afterInteractive"
-        />
       </body>
     </html>
   );

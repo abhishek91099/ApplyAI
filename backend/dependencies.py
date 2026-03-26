@@ -16,3 +16,17 @@ async def get_current_user_id(authorization: str = Header(...)) -> str:
         return user_id
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
+
+
+async def get_optional_user_id(
+    authorization: str | None = Header(None),
+) -> str | None:
+    """Same as get_current_user_id but returns None for anonymous requests."""
+    if not authorization:
+        return None
+    token = authorization.replace("Bearer ", "")
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return payload.get("sub")
+    except JWTError:
+        return None

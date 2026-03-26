@@ -8,7 +8,7 @@ function hasSessionCookie(request: NextRequest): boolean {
 export function middleware(request: NextRequest) {
   const hasAuth = hasSessionCookie(request);
 
-  const protectedPaths = ["/dashboard", "/applications", "/resume", "/research"];
+  const protectedPaths = ["/dashboard", "/applications"];
   const isProtected = protectedPaths.some((p) =>
     request.nextUrl.pathname.startsWith(p)
   );
