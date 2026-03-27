@@ -1,15 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { getToken, syncAuthCookieFromStorage } from "@/lib/auth";
 
-/**
- * Middleware only sees cookies; auth token lives in localStorage. Repairs the
- * marker cookie when needed. Also bounces off auth pages if you already have a token
- * (e.g. middleware sent you to /login before the cookie was restored).
- */
-export function AuthCookieSync() {
+function AuthCookieSyncInner() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -24,4 +19,17 @@ export function AuthCookieSync() {
   }, [pathname, router, searchParams]);
 
   return null;
+}
+
+/**
+ * Middleware only sees cookies; auth token lives in localStorage. Repairs the
+ * marker cookie when needed. Also bounces off auth pages if you already have a token
+ * (e.g. middleware sent you to /login before the cookie was restored).
+ */
+export function AuthCookieSync() {
+  return (
+    <Suspense fallback={null}>
+      <AuthCookieSyncInner />
+    </Suspense>
+  );
 }
