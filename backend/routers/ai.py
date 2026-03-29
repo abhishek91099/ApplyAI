@@ -65,7 +65,7 @@ class ExtractInfoRequest(BaseModel):
 
 
 @router.post("/extract-candidate-info")
-async def extract_candidate_info_endpoint(
+def extract_candidate_info_endpoint(
     body: ExtractInfoRequest,
     user_id: str | None = Depends(get_optional_user_id),
 ):
@@ -80,7 +80,7 @@ async def extract_candidate_info_endpoint(
 
 
 @router.post("/tailor-resume")
-async def tailor_resume_endpoint(
+def tailor_resume_endpoint(
     body: TailorRequest,
     user_id: str | None = Depends(get_optional_user_id),
 ):
@@ -105,7 +105,7 @@ async def tailor_resume_endpoint(
 
 
 @router.post("/score-resume")
-async def score_resume_endpoint(
+def score_resume_endpoint(
     body: ScoreRequest,
     user_id: str | None = Depends(get_optional_user_id),
 ):
@@ -123,7 +123,7 @@ async def score_resume_endpoint(
 
 
 @router.post("/generate-cover-letter")
-async def generate_cover_letter_endpoint(
+def generate_cover_letter_endpoint(
     body: CoverLetterRequest,
     user_id: str | None = Depends(get_optional_user_id),
 ):
@@ -150,7 +150,7 @@ async def generate_cover_letter_endpoint(
 
 
 @router.post("/generate-followups")
-async def generate_followups_endpoint(
+def generate_followups_endpoint(
     body: FollowUpRequest,
     user_id: str | None = Depends(get_optional_user_id),
 ):
@@ -172,7 +172,7 @@ async def generate_followups_endpoint(
 
 
 @router.post("/interview-prep")
-async def interview_prep_endpoint(
+def interview_prep_endpoint(
     body: InterviewPrepRequest,
     user_id: str | None = Depends(get_optional_user_id),
 ):
@@ -197,7 +197,7 @@ class ExtractUrlRequest(BaseModel):
 
 
 @router.post("/extract-url")
-async def extract_url_endpoint(
+def extract_url_endpoint(
     body: ExtractUrlRequest,
     user_id: str | None = Depends(get_optional_user_id),
 ):

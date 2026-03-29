@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Navbar } from "@/components/Navbar";
 import { Spinner } from "@/components/Spinner";
+import { GeneratingOverlay } from "@/components/GeneratingOverlay";
 import { CopyButton } from "@/components/CopyButton";
 import { ATSScore } from "@/components/ATSScore";
 import { CoverLetterPdfButton } from "@/components/CoverLetterPdfButton";
@@ -68,6 +69,8 @@ export default function ResumeStudioPage() {
   const [resumeView, setResumeView] = useState<"after" | "compare">("after");
 
   const [generating, setGenerating] = useState(false);
+  const [completedSteps, setCompletedSteps] = useState<Set<string>>(new Set());
+  const [errorSteps, setErrorSteps] = useState<Set<string>>(new Set());
   const [saving, setSaving] = useState(false);
   const [extracting, setExtracting] = useState(false);
   const [extractingInfo, setExtractingInfo] = useState(false);
@@ -116,41 +119,62 @@ export default function ResumeStudioPage() {
     }
   };
 
+  const markStep = (key: string, type: "done" | "error") => {
+    const setter = type === "done" ? setCompletedSteps : setErrorSteps;
+    setter((prev) => new Set(prev).add(key));
+  };
+
   const handleGenerate = async () => {
     setError("");
     setGenerating(true);
+    setCompletedSteps(new Set());
+    setErrorSteps(new Set());
     setTailorResult(null);
     setScoreResult(null);
     setCoverLetterResult(null);
     setFollowUpEmails([]);
-    try {
-      const [tailor, score, cover, followups] = await Promise.all([
-        tailorResume(resumeText, jobDescription, experienceYears, currentRole, jobTitle, isCareerChange),
-        scoreResume(resumeText, jobDescription),
-        generateCoverLetter(
-          resumeText,
-          jobDescription,
-          company,
-          candidateName,
-          experienceYears,
-          currentRole,
-          jobTitle,
-          isCareerChange
-        ),
-        generateFollowUps(jobTitle, company, candidateName),
-      ]);
-      setTailorResult(tailor);
-      setEditedResume(tailor.tailored_resume);
-      setScoreResult(score);
-      setCoverLetterResult(cover);
-      setEditedCoverLetter(cover.cover_letter);
-      setFollowUpEmails(followups.emails);
-      setActiveTab("resume");
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Generation failed");
-    } finally {
-      setGenerating(false);
+
+    const wrap = <T,>(key: string, fn: () => Promise<T>): Promise<T> =>
+      fn().then((r) => { markStep(key, "done"); return r; })
+          .catch((e) => { markStep(key, "error"); throw e; });
+
+    const [tailorRes, scoreRes, coverRes, followupsRes] = await Promise.allSettled([
+      wrap("resume", () => tailorResume(resumeText, jobDescription, experienceYears, currentRole, jobTitle, isCareerChange)),
+      wrap("score", () => scoreResume(resumeText, jobDescription)),
+      wrap("cover", () => generateCoverLetter(resumeText, jobDescription, company, candidateName, experienceYears, currentRole, jobTitle, isCareerChange)),
+      wrap("followup", () => generateFollowUps(jobTitle, company, candidateName)),
+    ]);
+
+    if (tailorRes.status === "fulfilled") {
+      setTailorResult(tailorRes.value);
+      setEditedResume(tailorRes.value.tailored_resume);
     }
+    if (scoreRes.status === "fulfilled") {
+      setScoreResult(scoreRes.value);
+    }
+    if (coverRes.status === "fulfilled") {
+      setCoverLetterResult(coverRes.value);
+      setEditedCoverLetter(coverRes.value.cover_letter);
+    }
+    if (followupsRes.status === "fulfilled") {
+      setFollowUpEmails(followupsRes.value.emails);
+    }
+
+    const failures = [tailorRes, scoreRes, coverRes, followupsRes].filter(
+      (r) => r.status === "rejected"
+    );
+    if (failures.length === 4) {
+      const first = failures[0] as PromiseRejectedResult;
+      setError(first.reason instanceof Error ? first.reason.message : "All generations failed");
+    } else if (failures.length > 0) {
+      setError(`${failures.length} of 4 tasks failed — partial results shown below`);
+    }
+
+    if (tailorRes.status === "fulfilled") setActiveTab("resume");
+    else if (coverRes.status === "fulfilled") setActiveTab("cover");
+    else if (followupsRes.status === "fulfilled") setActiveTab("followup");
+
+    setGenerating(false);
   };
 
   const handleSave = async () => {
@@ -415,6 +439,10 @@ export default function ResumeStudioPage() {
 
         {error && (
           <div className="rounded-xl border border-red-500/25 bg-red-950/40 p-4 text-sm text-red-300/95">{error}</div>
+        )}
+
+        {generating && (
+          <GeneratingOverlay completedSteps={completedSteps} errorSteps={errorSteps} />
         )}
 
         {hasResults && (
