@@ -42,3 +42,7 @@ __pycache__/
 *.pyo
 .venv/
 venv/
+
+# sqlite / dev artifacts
+*.db
+NUL
