@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import re
 import time
 from typing import Any
 
@@ -69,6 +70,16 @@ def _require_nonempty(**fields: Any) -> None:
 def _calc_cost(model: str, tokens_in: int, tokens_out: int) -> float:
     p = MODEL_PRICING.get(model, {"input": 0, "output": 0})
     return (tokens_in * p["input"] + tokens_out * p["output"]) / 1_000_000
+
+
+_CODE_FENCE_RE = re.compile(r"^```(?:json)?\s*\n?(.*?)\n?\s*```$", re.DOTALL)
+
+
+def _strip_code_fences(text: str) -> str:
+    """Remove markdown ```json ... ``` wrapping that Claude sometimes adds."""
+    text = text.strip()
+    m = _CODE_FENCE_RE.match(text)
+    return m.group(1).strip() if m else text
 
 
 def _is_fatal(error: Exception) -> bool:
@@ -205,10 +216,12 @@ def _generate_json(
         f" | cost=${cost:.5f}"
     )
 
+    cleaned = _strip_code_fences(raw_text)
+
     try:
-        return json.loads(raw_text)
+        return json.loads(cleaned)
     except json.JSONDecodeError as e:
-        snippet = raw_text[:200] if raw_text else "(empty)"
+        snippet = raw_text[:300] if raw_text else "(empty)"
         logger.error(
             f"JSON parse failed | model={model} | raw={snippet!r} | error={e}"
         )
